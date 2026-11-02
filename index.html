@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-title" content="Audiolibro"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png">
 <script>try{ if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')) navigator.serviceWorker.register('sw.js'); }catch(e){}</script>
-
 <style>
   :root{--bg:#14161a;--card:#1e222a;--line:#2d333d;--tx:#eef0f3;--mut:#9aa3b2;--ac:#f2b441;--ac2:#3a2f14}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -100,7 +99,8 @@
     <details>
       <summary>⚙ Voz, velocidad y temporizador</summary>
       <div class="row"><label>Voz</label><select id="voice"></select></div>
-      <div class="mut small" id="vinfo" style="margin:-2px 0 8px"></div>
+      <div class="mut small" id="vinfo" style="margin:-2px 0 6px"></div>
+      <div class="row"><label style="flex:1;color:var(--tx);display:flex;gap:8px;align-items:center"><input type="checkbox" id="allv" style="width:20px;height:20px;accent-color:var(--ac)"> Mostrar todas las voces del aparato</label></div>
       <div class="row"><label>Velocidad</label><input type="range" id="rate" min="0.6" max="1.8" step="0.05" value="1"><span id="rateV" style="flex:0 0 44px;text-align:right">1.0×</span></div>
       <div class="row"><label>Timbre</label><button data-p="1">Normal</button><button data-p="0.8">Grave</button><button data-p="0.6">Muy grave</button></div>
       <div class="row"><label>Tono</label><input type="range" id="pitch" min="0.5" max="1.5" step="0.05" value="0.8"><span id="pitchV" style="flex:0 0 44px;text-align:right">0.8</span></div>
@@ -109,10 +109,11 @@
       <div class="row"><label>Dormir</label>
         <select id="sleep"><option value="0">Sin temporizador</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">60 min</option></select></div>
       <div class="row"><button id="test">🔊 Probar voz</button></div>
-      <details class="small"><summary>¿Cómo conseguir voces más naturales?</summary>
+      <div class="small" id="vwarn" style="display:none;background:#3a2f14;border:1px solid var(--ac);border-radius:10px;padding:8px 10px;margin-bottom:8px">⚠ Tu aparato no tiene ninguna voz <b>masculina y natural</b> en español. Las que ves son las básicas (suenan robóticas). Descarga una mejor siguiendo la guía de abajo; es gratis y toma unos minutos.</div>
+      <details class="small" id="vguide"><summary>¿Cómo conseguir voces más naturales?</summary>
         <div class="mut small" style="line-height:1.5">
         Las voces con ⭐ suenan más naturales. Las voces las pone tu celular o computador, y se pueden mejorar gratis:<br>
-        <b>iPhone:</b> Ajustes › Accesibilidad › Contenido hablado › Voces › Español › descarga una “Mejorada” o “Premium” (ej. Paulina, Mónica, Eddy).<br>
+        <b>iPhone:</b> Ajustes › Accesibilidad › Contenido hablado › Voces › Español. Elige una <b>masculina</b> (por ejemplo <b>Juan</b> de México, <b>Diego</b> de Argentina, <b>Carlos</b> de Colombia o <b>Jorge</b> de España) y toca la nube ☁ para descargar la versión <b>Premium</b> (o “Mejorada”). Después cierra y abre de nuevo esta app. Los nombres pueden variar según tu versión de iOS.<br>
         <b>Android:</b> Ajustes › Sistema › Idiomas › Salida de texto a voz › Google › Instalar datos de voz › Español. Después elige otra voz aquí.<br>
         <b>Windows (Edge):</b> abre esta app en Edge: trae voces “Natural” de Microsoft (muy buenas) en español de Chile, México y España.<br>
         <b>Mac:</b> Ajustes › Accesibilidad › Contenido hablado › Voz del sistema › Gestionar voces.
@@ -382,13 +383,15 @@ const Voice = {
       [all.filter(x=>/^es/i.test(x.lang)), 'voces en español, pero tu aparato solo trae femeninas: usa Timbre › Muy grave o instala una masculina (mira abajo)'],
       [all, 'todas las voces del aparato (no trae voces en español)']
     ];
-    const hit = tiers.find(t=>t[0].length) || tiers[tiers.length-1];
+    const hit = $('allv') && $('allv').checked ? [all,'todas las voces que tiene tu aparato'] : (tiers.find(t=>t[0].length) || tiers[tiers.length-1]);
     this.voices = [...hit[0]].sort((a,b)=> this.natural(b)-this.natural(a) || this.region(a)-this.region(b) || a.name.localeCompare(b.name));
     const sel = $('voice'), saved = localStorage.getItem('voice')||'';
     sel.innerHTML = this.voices.map((x,i)=>`<option value="${i}">${x.name} (${x.lang})</option>`).join('');
     const i = this.voices.findIndex(x=>x.voiceURI===saved);
     sel.value = i>=0 ? i : 0;
     $('vinfo').textContent = 'Mostrando '+hit[1]+' ('+this.voices.length+').';
+    const good = tiers[0][0].length>0; $('vguide').open = !good;
+    $('vwarn').style.display = good ? 'none' : 'block';
   },
   clean(t){       // limpia el texto para que suene bien al leerlo
     const ab = {'Sr':'Señor','Sra':'Señora','Srta':'Señorita','Dr':'Doctor','Dra':'Doctora','Ud':'usted','Uds':'ustedes','Prof':'Profesor','Av':'Avenida','Art':'Artículo','art':'artículo','Nº':'número','N°':'número','No':'No'};
@@ -482,28 +485,68 @@ const Dict = {
     if(/(ando|iendo)$/.test(w)) v.push(w.replace(/(ando)$/,'ar').replace(/(iendo)$/,'er'),w.replace(/iendo$/,'ir'));
     if(/(aba|ía|ó|ió|aron|ieron)$/.test(w)) v.push(w.replace(/(aba|ó|aron)$/,'ar').replace(/(ía|ió|ieron)$/,'er'));
     return [...new Set(v)].slice(0,6); },
-  async fetchOne(w){
-    const c=new AbortController(); const t=setTimeout(()=>c.abort(),6000);
-    try{ const r=await fetch('https://api.dictionaryapi.dev/api/v2/entries/es/'+encodeURIComponent(w),{signal:c.signal});
-         if(!r.ok) return null; const j=await r.json(); return Array.isArray(j)&&j.length? j : null; }
-    catch(e){ return null; } finally{ clearTimeout(t); } },
+  async getJSON(url){
+    const c=new AbortController(); const t=setTimeout(()=>c.abort(),8000);
+    try{ const r=await fetch(url,{signal:c.signal}); if(!r.ok) return {err:'http'+r.status}; return {data:await r.json()}; }
+    catch(e){ return {err:'red'}; } finally{ clearTimeout(t); } },
+  // Wikcionario en español: trae la página y extrae las definiciones de la sección "Español"
+  parseWikt(html){
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const SKIP=/etimolog|pronunciaci|traducci|v[eé]ase|locucion|refran|conjugaci|informaci[oó]n|derivad|relacionad|descendientes|anagrama|ver tambi|referencias|dem[aá]s|sin[oó]nim|ant[oó]nim|hiper|hipo|cognad|forma/i;
+    const clean=el=>{ const c=el.cloneNode(true); c.querySelectorAll('dl,ul,ol,sup,.mw-editsection,.ejemplo,style,.mw-ref,.reference').forEach(x=>x.remove()); return c.textContent.replace(/\[editar\]/g,'').replace(/\s+/g,' ').trim(); };
+    let inEs=false, pos='', out=[];
+    doc.querySelectorAll('h2,h3,h4,h5,dl').forEach(el=>{
+      if(el.tagName==='DL'){
+        if(!inEs || !pos || el.parentElement.closest('dd')) return;
+        const defs=[...el.children].filter(x=>x.tagName==='DD').map(clean).filter(x=>x.length>3);
+        if(defs.length){ let cur=out.find(o=>o.pos===pos); if(!cur){ cur={pos,defs:[]}; out.push(cur); } cur.defs.push(...defs); }
+        return;
+      }
+      const t=clean(el);
+      if(el.tagName==='H2'){ inEs=/^espa[ñn]ol/i.test(t); pos=''; return; }
+      if(!inEs) return;
+      pos = SKIP.test(t) && !/forma verbal|forma sustantiva|forma adjetiva/i.test(t) ? '' : t;
+    });
+    return out;
+  },
+  async tryWikt(w){
+    const u='https://es.wiktionary.org/w/api.php?action=parse&prop=text&format=json&formatversion=2&redirects=1&origin=*&page='+encodeURIComponent(w);
+    const r=await this.getJSON(u); if(r.err) return {err:r.err};
+    if(!r.data || r.data.error || !r.data.parse) return {none:true};
+    const ents=this.parseWikt(r.data.parse.text||''); return ents.length? {ents} : {none:true};
+  },
+  async tryDapi(w){
+    const r=await this.getJSON('https://api.dictionaryapi.dev/api/v2/entries/es/'+encodeURIComponent(w));
+    if(r.err) return {err:r.err}; const j=r.data; if(!Array.isArray(j)||!j.length) return {none:true};
+    const ents=[]; j.forEach(en=>(en.meanings||[]).forEach(m=>ents.push({pos:m.partOfSpeech||'',defs:(m.definitions||[]).map(d=>d.definition)})));
+    return ents.length? {ents} : {none:true};
+  },
   async lookup(raw){
     const w=(raw||'').trim().split(/\s+/)[0]; if(!w) return;
-    this.open(); $('dq').value=w; const box=$('dres'); box.innerHTML='<span class="mut">Buscando “'+w.replace(/</g,'&lt;')+'”…</span>';
-    let data=null, used=w;
-    for(const v of this.variants(w)){ data=await this.fetchOne(v); if(data){ used=v; break; } }
-    const enc=encodeURIComponent(used);
+    this.open(); $('dq').value=w; const box=$('dres');
+    const esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    box.innerHTML='<h4>'+esc(w)+'</h4><span class="mut">Buscando…</span>';
+    let found=null, used=w, netErr=0, tried=[];
+    for(const v of this.variants(w)){
+      tried.push(v);
+      for(const f of [this.tryWikt, this.tryDapi]){
+        const r=await f.call(this,v); if(r.err){ netErr++; continue; } if(r.ents){ found=r.ents; used=v; break; }
+      }
+      if(found) break;
+      // en Wikcionario las palabras propias van con mayúscula
+      if(v===w.toLowerCase()){ const cap=v[0].toUpperCase()+v.slice(1); const r=await this.tryWikt(cap); if(r.ents){ found=r.ents; used=cap; break; } }
+    }
+    const enc=encodeURIComponent(used.toLowerCase());
     const links=`<div class="small" style="margin-top:8px">Ver en: <a href="https://dle.rae.es/${enc}" target="_blank" rel="noopener">Diccionario RAE</a> · <a href="https://es.wiktionary.org/wiki/${enc}" target="_blank" rel="noopener">Wikcionario</a></div>`;
-    if(!data){ box.innerHTML='<div>No pude traer el significado aquí (sin conexión o la palabra no está).</div>'+links; this.spoken=''; return; }
-    let html='<h4></h4>', spoken=used+'. ', n=0;
-    const out=document.createElement('div');
-    data.forEach(en=>(en.meanings||[]).forEach(m=>{ if(n>=3) return; n++;
-      const defs=(m.definitions||[]).slice(0,3);
-      html+=`<div class="mut small"><i>${(m.partOfSpeech||'').replace(/</g,'&lt;')}</i></div><ol>`+defs.map(d=>'<li>'+d.definition.replace(/</g,'&lt;')+'</li>').join('')+'</ol>';
-      spoken += (m.partOfSpeech? m.partOfSpeech+'. ':'') + defs.map((d,i)=>(i+1)+'. '+d.definition).join('. ')+'. ';
-    }));
-    box.innerHTML=html+`<div class="row"><button id="dsay">🔊 Leer significado</button></div>`+links;
-    box.querySelector('h4').textContent = used + (used!==w.toLowerCase()? '  (de “'+w+'”)':'');
+    if(!found){
+      const msg = netErr>=tried.length ? 'No pude conectarme al diccionario (revisa tu internet).' : 'No encontré “'+esc(w)+'” en el diccionario gratuito (probé: '+esc(tried.join(', '))+').';
+      box.innerHTML='<h4>'+esc(w)+'</h4><div>'+msg+'</div>'+links; this.spoken=''; return; }
+    let html='<h4></h4>', spoken=used+'. ';
+    found.slice(0,3).forEach(en=>{ const defs=en.defs.slice(0,4);
+      html+='<div class="mut small"><i>'+esc(en.pos)+'</i></div><ol>'+defs.map(d=>'<li>'+esc(d)+'</li>').join('')+'</ol>';
+      spoken+=(en.pos?en.pos+'. ':'')+defs.map((d,i)=>(i+1)+'. '+d).join('. ')+'. '; });
+    box.innerHTML=html+'<div class="row"><button id="dsay">🔊 Leer significado</button></div>'+links;
+    box.querySelector('h4').textContent = used.toLowerCase()!==w.toLowerCase()? used+'  (de “'+w+'”)' : used;
     this.spoken=spoken; $('dsay').onclick=()=>{ App.pause(); Voice.speak(spoken,()=>{}); };
   }
 };
@@ -636,10 +679,13 @@ $('sumCh').onclick = () => App.sumChapter();
 $('sumBook').onclick = () => App.sumWhole();
 $('dictBtn').onclick = () => { App.dictMode=!App.dictMode; $('dictBtn').classList.toggle('pri',App.dictMode); $('dictBtn').textContent = App.dictMode? '📖 Diccionario ACTIVO: toca una palabra' : '📖 Diccionario: tocar palabra'; if(App.dictMode){ Dict.open(); toast('Toca cualquier palabra del texto'); } else Dict.close(); };
 $('dgo').onclick = () => Dict.lookup($('dq').value);
+let selT; document.addEventListener('selectionchange',()=>{ if(!App.dictMode) return; clearTimeout(selT); selT=setTimeout(()=>{
+  const t=(window.getSelection()||'').toString().trim(); if(t && t.length<=30 && !/\s/.test(t) && document.activeElement!==$('dq') && $('text').contains(window.getSelection().anchorNode)) Dict.lookup(t); },500); });
 $('dq').onkeydown = e => { if(e.key==='Enter') Dict.lookup($('dq').value); };
 $('dx').onclick = () => Dict.close();
 $('rate').addEventListener('input',()=>App.bar());
 $('chap').onchange = e => { App.pause(); App.c=+e.target.value; App.p=0; App.mode='book'; App.introKey=null; Time.ms=0; App.render(); };
+$('allv').onchange = () => Voice.load();
 $('voice').onchange = e => { localStorage.setItem('voice', Voice.voices[+e.target.value].voiceURI); if(Voice.playing) App.say(); };
 let rt; const restart = () => { clearTimeout(rt); rt=setTimeout(()=>{ if(Voice.playing) App.say(); },400); };
 $('rate').oninput  = e => { $('rateV').textContent = (+e.target.value).toFixed(1)+'×'; localStorage.setItem('rate',e.target.value); restart(); };
