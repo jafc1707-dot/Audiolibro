@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1a1726" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f6ede0" media="(prefers-color-scheme: light)">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#121014" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#faf6ee" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Mi Audiolibro</title>
@@ -17,399 +17,288 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   MI AUDIOLIBRO — diseño cálido tipo librería nocturna
+   MI AUDIOLIBRO — edición teléfono. Minimalista, tipo app nativa.
    ============================================================ */
 :root{
-  --bg:#17131f; --bg2:#0f0c17;
-  --surface:#211c2e; --surface-2:#2a2439;
-  --line:#352d48; --line-2:#413857;
-  --tx:#f0e8d6; --tx-mut:#a39ab0; --tx-dim:#746d82;
-  --ac:#e8a853; --ac-h:#f3b968; --ac-tx:#1a1105; --ac-bg:rgba(232,168,83,.12);
-  --sh:0 4px 20px rgba(0,0,0,.35); --sh-lg:0 12px 48px rgba(0,0,0,.5);
-  --r:14px; --r-lg:18px;
-  --serif:'Lora', 'Iowan Old Style', Georgia, serif;
-  --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg:#121014; --surface:#1b181f; --surface-2:#242029;
+  --line:#2f2a35; --line-2:#3c3542;
+  --tx:#f4efe6; --tx-mut:#938c9c; --tx-dim:#605971;
+  --ac:#e9a856; --ac-ink:#1a1105;
+  --sh:0 6px 24px rgba(0,0,0,.4);
+  --serif:'Source Serif 4', Georgia, serif;
+  --sans:'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
 }
 [data-theme=light]{
-  --bg:#eee3cd; --bg2:#e4d7b9;
-  --surface:#fbf4e2; --surface-2:#f1e6ca;
-  --line:#d1be94; --line-2:#b8a376;
-  --tx:#2a2015; --tx-mut:#5b4d38; --tx-dim:#8a7a5f;
-  --ac:#a1551c; --ac-h:#8f4712; --ac-tx:#fff5df; --ac-bg:rgba(161,85,28,.14);
-  --sh:0 4px 20px rgba(85,55,10,.12); --sh-lg:0 12px 40px rgba(85,55,10,.18);
+  --bg:#faf6ee; --surface:#ffffff; --surface-2:#f3ecdc;
+  --line:#e8dfc9; --line-2:#d8cba8;
+  --tx:#211b10; --tx-mut:#7a6f55; --tx-dim:#a89a76;
+  --ac:#b5631a; --ac-ink:#fff7ea;
+  --sh:0 6px 20px rgba(80,55,10,.1);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;overflow-x:hidden}
+html,body{margin:0;overflow-x:hidden}
 body{
-  background:var(--bg);color:var(--tx);
-  font:16px/1.55 var(--sans);
-  min-height:100vh;min-height:100dvh;
-  background-image:
-    radial-gradient(1200px 500px at 50% -10%, rgba(232,168,83,.08), transparent 60%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-  background-attachment:fixed;
-  -webkit-font-smoothing:antialiased;
+  background:var(--bg);color:var(--tx);font:16px/1.5 var(--sans);
+  min-height:100dvh;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
 }
-button, select, input, textarea{font-family:inherit;color:inherit}
-button{cursor:pointer;border:0;background:transparent;color:var(--tx)}
+button,select,input,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer;border:0;background:transparent;color:var(--tx);-webkit-appearance:none}
+a{color:var(--ac)}
 
-/* -------- Header -------- */
-.hdr{
-  position:sticky;top:0;z-index:20;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  background:color-mix(in srgb, var(--bg) 82%, transparent);
-  border-bottom:1px solid var(--line);
-  padding:env(safe-area-inset-top) 0 0 0;
-}
-.hdr-in{max-width:780px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px}
-.hdr .logo{width:34px;height:34px;flex:0 0 34px;border-radius:9px;display:grid;place-items:center;
-  background:linear-gradient(135deg, var(--ac), var(--ac-h));color:var(--ac-tx);font-weight:700;font-size:18px;box-shadow:var(--sh)}
-.hdr h1{flex:1;min-width:0;font:600 17px/1.3 var(--sans);margin:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr .sub{color:var(--tx-mut);font:500 12px/1 var(--sans);margin-top:2px}
-.ibtn{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
-  background:var(--surface);border:1px solid var(--line);transition:.15s}
-.ibtn:hover{background:var(--surface-2);border-color:var(--line-2)}
+/* ---------- Header ---------- */
+.hdr{position:sticky;top:0;z-index:20;padding-top:var(--safe-t);
+  background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line)}
+.hdr-in{display:flex;align-items:center;gap:10px;padding:10px 16px}
+.ibtn{width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2)}
 .ibtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hdr h1{flex:1;min-width:0;font:700 17px/1.2 var(--sans);margin:0;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr .sub{color:var(--tx-mut);font-size:12px;margin-top:1px}
 
-/* -------- Main containers -------- */
-main{max-width:780px;margin:0 auto;padding:18px 16px 140px}
+main{padding:16px 16px calc(100px + env(safe-area-inset-bottom))}
 #reader{display:none}
 
-/* -------- Library -------- */
-.hero{text-align:center;padding:14px 8px 20px}
-.hero h2{font:700 24px/1.25 var(--sans);margin:0 0 6px;letter-spacing:-.01em}
-.hero p{color:var(--tx-mut);margin:0;font-size:14.5px}
-.drop{
-  background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);
-  padding:32px 20px;text-align:center;transition:.2s;cursor:pointer;position:relative;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--line-2) 50%, transparent);
+/* ---------- Onboarding card ---------- */
+.onb{background:linear-gradient(160deg, color-mix(in srgb,var(--ac) 14%, var(--surface)), var(--surface));
+  border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:18px;position:relative;overflow:hidden}
+.onb.closed{display:none}
+.onb .x{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2)}
+.onb .x svg{width:14px;height:14px;stroke:var(--tx-mut);fill:none;stroke-width:2.3;stroke-linecap:round}
+.onb h2{font:700 16px/1.3 var(--sans);margin:0 0 10px;padding-right:30px}
+.onb ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.onb li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;color:var(--tx-mut)}
+.onb li b{color:var(--tx);font-weight:600}
+.onb .num{flex:0 0 20px;height:20px;border-radius:50%;background:var(--ac);color:var(--ac-ink);
+  font:700 11.5px/20px var(--sans);text-align:center;margin-top:1px}
+
+/* ---------- Big load button ---------- */
+.load-row{display:flex;gap:10px;margin-bottom:18px}
+.load-main{
+  flex:1;background:var(--ac);color:var(--ac-ink);border-radius:18px;padding:18px 16px;
+  display:flex;align-items:center;gap:12px;text-align:left;font:700 15px/1.2 var(--sans);
+  box-shadow:0 6px 18px color-mix(in srgb, var(--ac) 35%, transparent)
 }
-.drop:hover{border-color:var(--ac);background:color-mix(in srgb, var(--surface) 92%, var(--ac) 8%);box-shadow:inset 0 0 0 1px var(--ac)}
-.drop.dragging{border-color:var(--ac);background:var(--ac-bg);box-shadow:inset 0 0 0 2px var(--ac)}
-.drop .ic{width:54px;height:54px;margin:0 auto 10px;border-radius:14px;display:grid;place-items:center;
-  background:var(--ac-bg);color:var(--ac)}
-.drop .ic svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.drop label{display:block;font:600 17px/1.3 var(--sans);color:var(--tx);cursor:pointer}
-.drop .mut{color:var(--tx-mut);font-size:13.5px;margin-top:4px}
+.load-main .ic{width:34px;height:34px;flex:0 0 34px;background:rgba(0,0,0,.14);border-radius:10px;display:grid;place-items:center}
+.load-main .ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.load-main .tt{display:block}
+.load-main .st{display:block;font-weight:500;font-size:12px;opacity:.85;margin-top:1px}
 input[type=file]{display:none}
 
-.paste{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.paste summary{padding:12px 14px;cursor:pointer;color:var(--tx-mut);font-weight:500;list-style:none;display:flex;align-items:center;gap:8px}
-.paste summary::-webkit-details-marker{display:none}
-.paste summary .chev{transition:.2s;display:inline-flex}
-.paste[open] summary .chev{transform:rotate(90deg)}
-.paste summary .chev svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
-.paste-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
-textarea{width:100%;min-height:90px;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:15px/1.5 var(--sans);resize:vertical}
-textarea:focus{outline:2px solid var(--ac);outline-offset:-1px;border-color:var(--ac)}
+.paste-toggle{width:52px;flex:0 0 52px;background:var(--surface);border:1px solid var(--line);border-radius:18px;display:grid;place-items:center}
+.paste-toggle svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.paste-wrap{display:none;margin:-8px 0 18px}
+.paste-wrap.on{display:block}
+textarea{width:100%;min-height:84px;background:var(--surface);color:var(--tx);border:1px solid var(--line);border-radius:14px;padding:12px;font:15px/1.5 var(--sans);resize:vertical;margin-bottom:8px}
+.sbtn{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px/1 var(--sans);text-align:center}
 
-.sect-title{display:flex;align-items:center;gap:8px;margin:22px 4px 10px;font:600 14px/1 var(--sans);color:var(--tx-mut);text-transform:uppercase;letter-spacing:.06em}
-.sect-title .count{background:var(--surface);border:1px solid var(--line);color:var(--tx-mut);border-radius:20px;padding:2px 9px;font-size:12px;font-weight:500}
+/* ---------- Library ---------- */
+.sect{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 10px}
+.sect h3{font:700 13px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--tx-mut);margin:0}
+.sect .n{color:var(--tx-dim);font:600 12px/1 var(--sans)}
 
-.library{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:12px}
-.book-card{
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  padding:14px;display:flex;gap:12px;align-items:center;transition:.2s;position:relative;overflow:hidden
+.library{display:flex;flex-direction:column;gap:10px}
+.book{
+  background:var(--surface);border:1px solid var(--line);border-radius:17px;
+  padding:13px;display:flex;gap:12px;align-items:center;position:relative
 }
-.book-card:hover{border-color:var(--line-2);transform:translateY(-1px);box-shadow:var(--sh)}
-.book-cover{
-  width:56px;height:76px;flex:0 0 56px;border-radius:7px;display:grid;place-items:center;
-  color:var(--ac-tx);font:700 22px/1 var(--serif);text-align:center;
-  box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative;overflow:hidden
-}
-.book-cover::after{content:'';position:absolute;left:3px;top:0;bottom:0;width:1px;background:rgba(0,0,0,.2)}
-.book-info{flex:1;min-width:0}
-.book-info .t{font:600 15px/1.3 var(--sans);margin:0 0 3px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.book-info .m{color:var(--tx-mut);font-size:12.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.book-info .m .dot{width:3px;height:3px;background:currentColor;border-radius:50%}
-.book-info .m .audio{color:var(--ac);display:inline-flex;align-items:center;gap:3px}
-.book-info .prog{height:3px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
-.book-info .prog-fill{height:100%;background:var(--ac);border-radius:2px;transition:.3s}
-.book-del{width:34px;height:34px;flex:0 0 34px;border-radius:9px;display:grid;place-items:center;opacity:0;transition:.15s}
-.book-card:hover .book-del{opacity:1}
-.book-del:hover{background:var(--surface-2)}
-.book-del svg{width:16px;height:16px;stroke:var(--tx-mut);fill:none;stroke-width:2;stroke-linecap:round}
-.store-note{color:var(--tx-dim);font-size:13px;margin:14px 4px 0;text-align:center}
+.book:active{background:var(--surface-2)}
+.cover{width:50px;height:68px;flex:0 0 50px;border-radius:8px;display:grid;place-items:center;
+  color:#fff;font:700 21px/1 var(--serif);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.info{flex:1;min-width:0;text-align:left}
+.info .t{font:600 15px/1.3 var(--sans);margin:0 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.info .m{color:var(--tx-mut);font-size:12.5px;display:flex;gap:6px;align-items:center}
+.info .m .ready{color:var(--ac);font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.info .bar{height:3px;background:var(--line);border-radius:2px;margin-top:7px;overflow:hidden}
+.info .bar i{display:block;height:100%;background:var(--ac);border-radius:2px}
+.del{width:32px;height:32px;flex:0 0 32px;border-radius:9px;display:grid;place-items:center}
+.del svg{width:15px;height:15px;stroke:var(--tx-dim);fill:none;stroke-width:2;stroke-linecap:round}
+.empty{text-align:center;padding:40px 16px;color:var(--tx-dim)}
+.empty svg{width:40px;height:40px;opacity:.4;margin-bottom:10px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.note{text-align:center;color:var(--tx-dim);font-size:12px;margin-top:14px}
 
-/* -------- Reader -------- */
-.chap-row{display:flex;gap:10px;align-items:stretch;margin-bottom:12px}
-.chap-sel-wrap{flex:1;position:relative}
-.chap-sel-wrap::after{
-  content:'';position:absolute;right:16px;top:50%;width:8px;height:8px;
-  border-right:2px solid var(--tx-mut);border-bottom:2px solid var(--tx-mut);
-  transform:translateY(-70%) rotate(45deg);pointer-events:none
-}
-#chap{
-  width:100%;appearance:none;-webkit-appearance:none;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  padding:13px 40px 13px 14px;font:500 15px/1.3 var(--sans);cursor:pointer
-}
-#chap:focus{outline:2px solid var(--ac);outline-offset:-1px}
-.chap-nav{display:flex;gap:6px}
-.chap-nav button{width:46px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:grid;place-items:center;transition:.15s}
-.chap-nav button:hover:not(:disabled){background:var(--surface-2);border-color:var(--line-2)}
-.chap-nav button:disabled{opacity:.35}
-.chap-nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* ---------- Reader ---------- */
+.chaprow{display:flex;gap:8px;margin-bottom:14px}
+.chapsel{flex:1;position:relative}
+.chapsel::after{content:'';position:absolute;right:15px;top:50%;width:7px;height:7px;border-right:2px solid var(--tx-mut);border-bottom:2px solid var(--tx-mut);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+#chap{width:100%;appearance:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 36px 12px 14px;font:600 14.5px/1.3 var(--sans)}
+.navbtn{width:44px;background:var(--surface);border:1px solid var(--line);border-radius:14px;display:grid;place-items:center}
+.navbtn:disabled{opacity:.3}
+.navbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
-.progress-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:14px}
-.progress-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
-.progress-head .l{font:500 14px/1.3 var(--sans);flex:1;min-width:0}
-.progress-head .l .sub{color:var(--tx-mut);font-size:12.5px;margin-top:2px}
-.progress-head .r{font:600 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ac);white-space:nowrap}
-#progBar{height:6px;background:var(--line);border-radius:4px;overflow:hidden;cursor:pointer;position:relative}
-#progFill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac-h));border-radius:4px;transition:width .2s;width:0%}
-.srv-badge{display:none;align-items:center;gap:6px;background:var(--ac-bg);border:1px solid var(--ac);color:var(--ac);border-radius:20px;padding:3px 10px;font:600 11.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.04em}
-.srv-badge.on{display:inline-flex}
-.srv-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 6px var(--ac);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nowplay{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:16px}
+.nowplay .top{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}
+.nowplay .nm{font:600 13.5px/1.3 var(--sans);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nowplay .tm{font:700 13px/1 ui-monospace,Menlo,monospace;color:var(--ac);white-space:nowrap}
+.nowplay .sub{color:var(--tx-mut);font-size:11.5px;margin-top:2px}
+#sbar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;position:relative}
+#sfill{height:100%;background:var(--ac);border-radius:3px;width:0%}
+.nosource{display:none;align-items:center;gap:8px;background:color-mix(in srgb, var(--ac) 12%, transparent);
+  border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:9px 11px;font:600 12.5px/1.4 var(--sans);margin-top:10px}
+.nosource.on{display:flex}
+.nosource svg{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
 
-/* -------- Text body -------- */
-#text{padding:4px 2px 20px;max-width:680px;margin:0 auto}
-#text p{
-  margin:0 0 16px;padding:10px 14px;border-radius:12px;
-  font:400 19px/1.75 var(--serif);
-  color:var(--tx);transition:.2s;cursor:pointer;
-  letter-spacing:.005em
-}
-#text p:hover{background:color-mix(in srgb, var(--surface) 50%, transparent)}
-#text p.on{background:var(--ac-bg);box-shadow:inset 3px 0 0 var(--ac)}
-#text p span.cur{background:var(--ac);color:var(--ac-tx);border-radius:4px;padding:1px 2px;margin:0 -2px}
-#text p.mut{font:italic 400 15px/1.55 var(--serif);color:var(--tx-mut);background:transparent;border-left:3px solid var(--ac);padding-left:14px}
+#text{padding:2px 0 16px}
+#text p{margin:0 0 15px;padding:9px 12px;border-radius:12px;font:400 18.5px/1.72 var(--serif);transition:.2s;cursor:pointer}
+#text p.on{background:color-mix(in srgb, var(--ac) 13%, transparent);box-shadow:inset 3px 0 0 var(--ac)}
+#text p span.cur{background:var(--ac);color:var(--ac-ink);border-radius:4px;padding:1px 2px}
+#text p.mut{font:italic 400 14.5px/1.5 var(--serif);color:var(--tx-mut);border-left:3px solid var(--ac);padding-left:12px}
 
-/* -------- Bottom panel (reader controls) -------- */
-.panel{
-  position:fixed;left:0;right:0;bottom:0;z-index:15;
-  background:color-mix(in srgb, var(--surface) 96%, transparent);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-top:1px solid var(--line);
-  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-}
-.panel-in{max-width:780px;margin:0 auto}
-.ctr{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.ctr button{height:52px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);transition:.15s}
-.ctr button:hover:not(:disabled){background:var(--line);border-color:var(--line-2)}
-.ctr button:disabled{opacity:.4}
-.ctr .step{width:52px;flex:0 0 52px}
-.ctr .playBtn{
-  flex:1;background:linear-gradient(135deg,var(--ac),var(--ac-h));
-  color:var(--ac-tx);border-color:transparent;box-shadow:0 4px 14px rgba(232,168,83,.3);
-  display:flex;gap:9px;padding:0 16px;font:700 16px/1 var(--sans)
-}
-.ctr .playBtn:hover{filter:brightness(1.05);box-shadow:0 6px 18px rgba(232,168,83,.4)}
-.ctr svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.ctr .playBtn svg{fill:var(--ac-tx);stroke:none;width:18px;height:18px}
-.quick{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;margin:0 -12px;padding:2px 12px 0}
-.quick::-webkit-scrollbar{display:none}
-.quick .chip{
-  flex:0 0 auto;background:var(--surface-2);border:1px solid var(--line);
-  border-radius:20px;padding:8px 13px;font:500 13.5px/1 var(--sans);
-  display:inline-flex;align-items:center;gap:6px;color:var(--tx);transition:.15s;white-space:nowrap
-}
-.quick .chip:hover{background:var(--line);border-color:var(--line-2)}
-.quick .chip.pri{background:var(--ac);color:var(--ac-tx);border-color:var(--ac)}
-.quick .chip.pri:hover{background:var(--ac-h)}
-.quick .chip.active{background:var(--ac);color:var(--ac-tx);border-color:var(--ac)}
-.quick .chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* ---------- Bottom panel ---------- */
+.panel{position:fixed;left:0;right:0;bottom:0;z-index:15;
+  background:color-mix(in srgb, var(--surface) 95%, transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.ctr{display:flex;gap:9px;align-items:center;margin-bottom:9px}
+.ctr button{height:54px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+.ctr .step{width:54px;flex:0 0 54px;display:grid;place-items:center}
+.ctr .step svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ctr .step:disabled{opacity:.35}
+.ctr .playBtn{flex:1;background:var(--ac);color:var(--ac-ink);display:flex;align-items:center;justify-content:center;gap:9px;font:800 16px/1 var(--sans);border:0;box-shadow:0 5px 16px color-mix(in srgb, var(--ac) 40%, transparent)}
+.ctr .playBtn svg{width:19px;height:19px;fill:var(--ac-ink)}
+.tabs{display:flex;gap:7px}
+.tabs button{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:10px 4px;font:600 11.5px/1.25 var(--sans);display:flex;flex-direction:column;align-items:center;gap:4px}
+.tabs button.active{background:var(--ac);color:var(--ac-ink);border-color:transparent}
+.tabs svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 
-/* -------- Bottom sheets (settings, dict) -------- */
-.sheet{
-  position:fixed;left:0;right:0;bottom:-100%;z-index:30;
-  background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;
-  border:1px solid var(--line);border-bottom:0;
-  max-height:88vh;overflow:hidden;
-  transition:bottom .3s cubic-bezier(.22,.9,.4,1);
-  box-shadow:var(--sh-lg);
-  padding-bottom:env(safe-area-inset-bottom);
-  display:flex;flex-direction:column
-}
+/* ---------- Sheets ---------- */
+.sheet-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:29}
+.sheet-bd.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:-100%;z-index:30;background:var(--surface);
+  border-radius:22px 22px 0 0;border:1px solid var(--line);border-bottom:0;max-height:85vh;overflow:hidden;
+  transition:bottom .32s cubic-bezier(.22,.9,.4,1);padding-bottom:env(safe-area-inset-bottom);display:flex;flex-direction:column}
 .sheet.on{bottom:0}
-.sheet-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:29;opacity:0;transition:opacity .2s}
-.sheet-bd.on{display:block;opacity:1}
-.sheet-hd{padding:12px 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--surface);z-index:2}
-.sheet-hd .hndl{width:40px;height:4px;background:var(--line-2);border-radius:2px;margin:0 auto;position:absolute;top:6px;left:0;right:0}
-.sheet-hd h3{flex:1;margin:0;font:600 17px/1.2 var(--sans)}
-.sheet-hd .cls{width:34px;height:34px;border-radius:9px;display:grid;place-items:center}
-.sheet-hd .cls:hover{background:var(--surface-2)}
-.sheet-hd .cls svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
-.sheet-bd-in{padding:14px 16px;overflow-y:auto;flex:1;max-width:680px;margin:0 auto;width:100%}
-.max-w{max-width:680px;margin:0 auto;width:100%}
+.sheet-hd{padding:14px 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;position:relative}
+.sheet-hd .hndl{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:36px;height:4px;border-radius:2px;background:var(--line-2)}
+.sheet-hd h3{flex:1;margin:4px 0 0;font:700 17px/1.2 var(--sans)}
+.sheet-hd .cls{width:32px;height:32px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;margin-top:4px}
+.sheet-hd .cls svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round}
+.sheet-body{padding:14px 16px;overflow-y:auto;flex:1}
 
-/* Settings fields */
-.fgroup{margin:0 0 18px}
-.fgroup > label{display:block;font:600 13px/1 var(--sans);color:var(--tx-mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.fgroup .help{color:var(--tx-mut);font-size:13px;margin:4px 0 0;line-height:1.5}
-select.full,input[type=text].full{
-  width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
-  padding:11px 14px;font:500 14.5px/1.3 var(--sans);color:var(--tx);appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a94a8' stroke-width='3' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px
-}
-.row-slide{display:flex;align-items:center;gap:12px}
-.row-slide .val{flex:0 0 52px;text-align:right;font:600 14px/1 ui-monospace,Menlo,monospace;color:var(--ac)}
-input[type=range]{flex:1;accent-color:var(--ac);height:24px}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn-row .pill{flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:500 13.5px/1 var(--sans);transition:.15s}
-.btn-row .pill:hover{background:var(--line);border-color:var(--line-2)}
-.btn-row .pill.on{background:var(--ac);color:var(--ac-tx);border-color:var(--ac)}
-.toggle{display:flex;align-items:center;gap:14px;cursor:pointer;padding:10px 0;user-select:none}
+.fg{margin:0 0 20px}
+.fg>label.fh{display:block;font:700 12px/1 var(--sans);color:var(--tx-mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.rowslide{display:flex;align-items:center;gap:12px}
+.rowslide .v{flex:0 0 50px;text-align:right;font:700 14px/1 ui-monospace,Menlo,monospace;color:var(--ac)}
+input[type=range]{flex:1;accent-color:var(--ac);height:28px}
+.toggle{display:flex;align-items:center;gap:13px;cursor:pointer;padding:9px 0}
 .toggle input{display:none}
-.sw{width:46px;height:26px;background:var(--line-2);border-radius:14px;position:relative;transition:.2s;flex:0 0 46px;display:inline-block;border:1px solid var(--line-2)}
-.sw::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 2px 5px rgba(0,0,0,.25)}
-.toggle input:checked + .sw{background:var(--ac);border-color:var(--ac)}
-.toggle input:checked + .sw::after{left:22px}
+.sw{width:46px;height:27px;background:var(--line-2);border-radius:14px;position:relative;transition:.2s;flex:0 0 46px;border:1px solid var(--line-2)}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:21px;height:21px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.toggle input:checked+.sw{background:var(--ac);border-color:var(--ac)}
+.toggle input:checked+.sw::after{left:21px}
 .toggle .lbl{flex:1;font-size:14.5px;line-height:1.4}
-.toggle .lbl .mut{color:var(--tx-mut);font-size:12.5px;display:block;margin-top:2px}
-.action-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14.5px/1 var(--sans);transition:.15s}
-.action-btn:hover:not(:disabled){background:var(--line);border-color:var(--line-2)}
-.action-btn.pri{background:linear-gradient(135deg,var(--ac),var(--ac-h));color:var(--ac-tx);border-color:transparent;box-shadow:0 2px 10px rgba(232,168,83,.25)}
-.action-btn.pri:hover:not(:disabled){filter:brightness(1.05)}
-.action-btn:disabled{opacity:.5;cursor:not-allowed}
-.action-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.srv-panel{background:linear-gradient(135deg, var(--ac-bg), transparent);border:1px solid var(--ac);border-radius:12px;padding:12px;margin-bottom:14px}
-.srv-panel .ttl{display:flex;align-items:center;gap:8px;font:700 13px/1 var(--sans);color:var(--ac);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.srv-panel .ttl::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
-.srv-panel .desc{font-size:13px;color:var(--tx);margin-bottom:10px;line-height:1.5}
-.gen-progress{display:none;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13.5px}
-.gen-progress.on{display:block}
-.gen-progress .lbl{display:flex;justify-content:space-between;margin-bottom:6px}
-.gen-progress .bar{height:4px;background:var(--line);border-radius:3px;overflow:hidden}
-.gen-progress .fill{height:100%;background:var(--ac);transition:width .3s;width:0%}
-.vwarn{display:none;background:color-mix(in srgb, var(--ac-bg) 60%, transparent);border:1px solid var(--ac);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;line-height:1.5}
+.toggle .lbl .mut{color:var(--tx-mut);font-size:12px;display:block;margin-top:2px}
+.pillrow{display:flex;gap:7px}
+.pillrow button{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px 6px;font:600 13px/1 var(--sans)}
+.pillrow button.on{background:var(--ac);color:var(--ac-ink);border-color:transparent}
+select.full{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:600 14.5px/1.3 var(--sans);appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23938c9c' stroke-width='3' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.actbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:13px;font:700 14px/1 var(--sans)}
+.actbtn.pri{background:var(--ac);color:var(--ac-ink);border-color:transparent}
+.actbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+details.adv{border-top:1px solid var(--line);padding-top:4px;margin-top:6px}
+details.adv summary{list-style:none;padding:10px 0;color:var(--tx-mut);font:600 13px/1 var(--sans);display:flex;align-items:center;gap:7px;cursor:pointer}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary .chev{transition:.2s;display:inline-flex}
+details.adv[open] summary .chev{transform:rotate(90deg)}
+details.adv summary svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+.vwarn{background:color-mix(in srgb, var(--ac) 12%, transparent);border:1px solid var(--ac);border-radius:11px;padding:10px 11px;font-size:12.5px;line-height:1.5;margin-bottom:10px;display:none}
 .vwarn.on{display:block}
 
-/* Dictionary */
-#dict{display:none}
-#dict.on{display:flex;flex-direction:column}
-.dq-row{display:flex;gap:6px}
-#dq{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font:500 15px/1.3 var(--sans);color:var(--tx)}
-#dq:focus{outline:2px solid var(--ac);outline-offset:-1px}
-#dgo{background:var(--ac);color:var(--ac-tx);border-radius:10px;padding:0 16px;font:600 14px/1 var(--sans)}
-#dres{margin-top:14px;font-size:14.5px;line-height:1.55}
-#dres h4{margin:0 0 8px;font:700 20px/1.25 var(--serif);color:var(--tx)}
-#dres .pos{color:var(--ac);font:italic 600 13px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 5px}
-#dres ol{margin:0;padding-left:22px;color:var(--tx)}
-#dres ol li{margin:4px 0}
-#dres a{color:var(--ac)}
+#dict .dq-row{display:flex;gap:7px;margin-bottom:12px}
+#dq{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:600 15px/1.3 var(--sans)}
+#dgo{background:var(--ac);color:var(--ac-ink);border-radius:12px;padding:0 16px;font:700 13.5px/1 var(--sans)}
+#dres h4{margin:0 0 8px;font:700 21px/1.25 var(--serif)}
+#dres .pos{color:var(--ac);font:italic 700 12.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 5px}
+#dres ol{margin:0;padding-left:21px}
+#dres ol li{margin:4px 0;font-size:14.5px;line-height:1.5}
 
-/* Toast */
-.toast{
-  position:fixed;top:calc(env(safe-area-inset-top) + 16px);left:50%;transform:translateX(-50%) translateY(-120%);
-  background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:24px;
-  z-index:50;font:500 14px/1 var(--sans);box-shadow:var(--sh-lg);
-  transition:transform .3s cubic-bezier(.22,.9,.4,1);max-width:90vw;text-align:center
-}
+.toast{position:fixed;top:calc(var(--safe-t) + 14px);left:50%;transform:translateX(-50%) translateY(-130%);
+  background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:24px;z-index:50;font:600 13.5px/1 var(--sans);
+  box-shadow:var(--sh);transition:transform .3s cubic-bezier(.22,.9,.4,1);max-width:88vw;text-align:center}
 .toast.on{transform:translateX(-50%) translateY(0)}
-
-/* Empty state */
-.empty{text-align:center;padding:30px 16px;color:var(--tx-mut)}
-.empty svg{width:48px;height:48px;opacity:.5;margin-bottom:10px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
-/* Responsive */
-@media (max-width: 500px){
-  #text p{font-size:18px;padding:8px 10px}
-  .hero h2{font-size:21px}
-  .ctr .step{width:46px;flex:0 0 46px;height:48px}
-  .ctr .playBtn{height:48px;font-size:15px}
-  .ctr button{height:48px}
-}
 </style>
 </head>
 <body>
 
-<!-- ============ TOAST ============ -->
 <div class="toast" id="toast"></div>
 
-<!-- ============ HEADER ============ -->
 <header class="hdr">
   <div class="hdr-in">
-    <button class="ibtn" id="back" style="display:none" aria-label="Volver">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <div class="logo">A</div>
+    <button class="ibtn" id="back" style="display:none" aria-label="Volver"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div style="flex:1;min-width:0">
       <h1 id="title">Mi Audiolibro</h1>
-      <div class="sub" id="subtitle">Tu biblioteca personal</div>
+      <div class="sub" id="subtitle">Tu biblioteca</div>
     </div>
-    <button class="ibtn" id="themeBtn" aria-label="Cambiar tema">
-      <svg viewBox="0 0 24 24" id="themeIco"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <button class="ibtn" id="themeBtn" aria-label="Tema"><svg viewBox="0 0 24 24" id="themeIco"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
   </div>
 </header>
 
-<!-- ============ LIBRARY VIEW ============ -->
+<!-- ============ LIBRARY ============ -->
 <main id="lib">
-  <div class="hero">
-    <h2>Escucha cualquier libro</h2>
-    <p>Carga un PDF, EPUB o TXT y disfrútalo con voz natural</p>
+  <div class="onb" id="onb">
+    <button class="x" id="onbClose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <h2>Cómo escuchar con voz natural</h2>
+    <ol>
+      <li><span class="num">1</span><span>En tu <b>computador</b>, abre la versión de escritorio de esta app y genera el audio del capítulo (voces masculinas en español, gratis).</span></li>
+      <li><span class="num">2</span><span>Pasa el MP3 al iPhone por <b>AirDrop, Drive o correo</b> y guárdalo en Archivos.</span></li>
+      <li><span class="num">3</span><span>Aquí, abre el libro y toca <b>Audio</b> para cargarlo. Queda guardado y listo para escuchar cuando quieras.</span></li>
+    </ol>
   </div>
 
-  <label for="file" class="drop" id="dropZone">
-    <div class="ic">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    </div>
-    <label for="file">Cargar libro</label>
-    <div class="mut">PDF · EPUB · TXT — arrastra o haz clic</div>
+  <div class="load-row">
+    <label for="file" class="load-main">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <span><span class="tt">Cargar libro</span><span class="st">PDF · EPUB · TXT</span></span>
+    </label>
     <input type="file" id="file" accept=".pdf,.epub,.txt,.text,application/pdf,application/epub+zip,text/plain" multiple>
-  </label>
+    <button class="paste-toggle" id="pasteToggle" aria-label="Pegar texto"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 2h6v3H9z"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/></svg></button>
+  </div>
+  <div class="paste-wrap" id="pasteWrap">
+    <textarea id="paste" placeholder="Pega aquí cualquier texto…"></textarea>
+    <button class="sbtn" id="pasteBtn">Agregar texto</button>
+  </div>
 
-  <details class="paste">
-    <summary><span class="chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>O pega un texto</summary>
-    <div class="paste-body">
-      <textarea id="paste" placeholder="Pega aquí cualquier texto: un artículo, un capítulo, apuntes…"></textarea>
-      <button class="action-btn pri" id="pasteBtn">Agregar texto</button>
-    </div>
-  </details>
-
-  <div class="sect-title">Mi biblioteca <span class="count" id="libCount">0</span></div>
+  <div class="sect"><h3>Mi biblioteca</h3><span class="n" id="libCount">0</span></div>
   <div id="books" class="library"></div>
-  <p class="store-note" id="storeNote"></p>
+  <p class="note" id="storeNote"></p>
 </main>
 
-<!-- ============ READER VIEW ============ -->
+<!-- ============ READER ============ -->
 <main id="reader">
-  <div class="chap-row">
-    <div class="chap-sel-wrap">
-      <select id="chap"></select>
-    </div>
-    <div class="chap-nav">
-      <button id="chapPrev" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
-      <button id="chapNext" aria-label="Capítulo siguiente"><svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
-    </div>
+  <div class="chaprow">
+    <div class="chapsel"><select id="chap"></select></div>
+    <button class="navbtn" id="chapPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
+    <button class="navbtn" id="chapNext" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
   </div>
 
-  <div class="progress-card">
-    <div class="progress-head">
-      <div class="l">
-        <div id="estTitle">Capítulo</div>
-        <div class="sub" id="estSub">—</div>
-      </div>
-      <div class="r"><span id="srvBadge" class="srv-badge">servidor</span> <span id="clock">00:00</span></div>
-    </div>
-    <div id="progBar"><div id="progFill"></div></div>
+  <div class="nowplay">
+    <div class="top"><div class="nm" id="estTitle">Capítulo</div><div class="tm" id="clock">00:00</div></div>
+    <div class="sub" id="estSub">—</div>
+    <div id="sbar" style="margin-top:8px"><div id="sfill"></div></div>
+    <div class="nosource" id="nosource"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Este capítulo no tiene audio MP3 todavía — toca <b>Audio</b> para cargarlo.</span></div>
   </div>
 
   <div id="text"></div>
 
-  <!-- Bottom controls -->
   <div class="panel">
-    <div class="panel-in">
-      <div class="ctr">
-        <button id="prev" class="step" aria-label="Párrafo anterior"><svg viewBox="0 0 24 24"><polyline points="19 20 9 12 19 4"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
-        <button id="play" class="playBtn"><svg viewBox="0 0 24 24" id="playIco"><polygon points="5 3 19 12 5 21 5 3"/></svg><span id="playTxt">Leer</span></button>
-        <button id="next" class="step" aria-label="Párrafo siguiente"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
-      </div>
-      <div class="quick">
-        <button class="chip" id="settingsBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Voz y ajustes</button>
-        <button class="chip" id="dictBtn"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Diccionario</button>
-        <button class="chip" id="sumCh"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Resumen del capítulo</button>
-        <button class="chip" id="sumBook"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Resumen del libro</button>
-        <button class="chip" id="genBtnQuick" style="display:none"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Generar audio</button>
-        <button class="chip" id="audBtn"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>Audios MP3</button>
-        <input type="file" id="audFile" accept="audio/*,.mp3,.m4a,.wav,.ogg" multiple>
-      </div>
+    <div class="ctr">
+      <button class="step" id="prev" aria-label="Párrafo anterior"><svg viewBox="0 0 24 24"><polyline points="19 20 9 12 19 4"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+      <button class="playBtn" id="play"><svg viewBox="0 0 24 24" id="playIco"><polygon points="5 3 19 12 5 21 5 3"/></svg><span id="playTxt">Leer</span></button>
+      <button class="step" id="next" aria-label="Párrafo siguiente"><svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+    </div>
+    <div class="tabs">
+      <button id="audBtn"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Audio</button>
+      <input type="file" id="audFile" accept="audio/*,.mp3,.m4a,.wav,.ogg" multiple>
+      <button id="dictBtn"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Diccionario</button>
+      <button id="sumBtn"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Resumen</button>
+      <button id="settingsBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Ajustes</button>
     </div>
   </div>
 </main>
@@ -417,126 +306,66 @@ input[type=range]{flex:1;accent-color:var(--ac);height:24px}
 <!-- ============ SETTINGS SHEET ============ -->
 <div class="sheet-bd" id="sheetBd"></div>
 <div class="sheet" id="settingsSheet">
-  <div class="sheet-hd">
-    <div class="hndl"></div>
-    <h3>Voz y ajustes</h3>
-    <button class="cls" data-close><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div class="sheet-bd-in">
-
-    <!-- SERVIDOR LOCAL -->
-    <div class="srv-panel" id="srvPanel" style="display:none">
-      <div class="ttl">Servidor local activo</div>
-      <div class="desc" id="srvDesc">Puedes generar audios con voces masculinas latinas naturales de Microsoft, sin salir de la app.</div>
-      <div class="fgroup" style="margin:0 0 10px">
-        <label>Voz Microsoft</label>
-        <select class="full" id="srvVoice"></select>
-      </div>
-      <button class="action-btn pri" id="genBtn" style="width:100%">
-        <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-        <span id="genBtnTxt">Generar audio del capítulo actual</span>
-      </button>
-      <div class="gen-progress" id="genProg">
-        <div class="lbl"><span id="genLbl">Generando…</span><span id="genPct">0%</span></div>
-        <div class="bar"><div class="fill" id="genFill"></div></div>
+  <div class="sheet-hd"><div class="hndl"></div><h3>Ajustes</h3><button class="cls" data-close><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="sheet-body">
+    <div class="fg">
+      <label class="fh">Apariencia</label>
+      <div class="pillrow">
+        <button data-theme-set="auto">Auto</button>
+        <button data-theme-set="dark">Oscuro</button>
+        <button data-theme-set="light">Claro</button>
       </div>
     </div>
-
-    <!-- APARIENCIA -->
-    <div class="fgroup">
-      <label>Apariencia</label>
-      <div class="btn-row">
-        <button class="pill" data-theme-set="auto">Automático</button>
-        <button class="pill" data-theme-set="dark">Nocturno</button>
-        <button class="pill" data-theme-set="light">Pergamino</button>
-      </div>
+    <div class="fg">
+      <label class="fh">Velocidad de reproducción</label>
+      <div class="rowslide"><input type="range" id="rate" min="0.6" max="1.8" step="0.05" value="1"><div class="v" id="rateV">1.0×</div></div>
     </div>
-
-    <!-- VOZ DEL DISPOSITIVO -->
-    <div class="fgroup">
-      <label>Voz del aparato</label>
-      <div class="vwarn" id="vwarn">⚠ Tu aparato no tiene voces masculinas naturales en español. Si estás en PC con el servidor activo, usa la voz Microsoft de arriba (es la mejor).</div>
-      <select class="full" id="voice"></select>
-      <p class="help" id="vinfo"></p>
-      <label class="toggle" style="margin-top:6px">
-        <input type="checkbox" id="allv"><span class="sw"></span>
-        <span class="lbl">Mostrar todas las voces<span class="mut">Incluye las que no son en español</span></span>
-      </label>
+    <div class="fg">
+      <label class="fh">Mientras lees</label>
+      <label class="toggle"><input type="checkbox" id="follow" checked><span class="sw"></span><span class="lbl">Seguir el texto automáticamente<span class="mut">El párrafo activo se centra solo</span></span></label>
+      <label class="toggle"><input type="checkbox" id="announce" checked><span class="sw"></span><span class="lbl">Anunciar la duración<span class="mut">Al empezar cada capítulo</span></span></label>
     </div>
-
-    <!-- VELOCIDAD -->
-    <div class="fgroup">
-      <label>Velocidad</label>
-      <div class="row-slide">
-        <input type="range" id="rate" min="0.6" max="1.8" step="0.05" value="1">
-        <div class="val" id="rateV">1.0×</div>
-      </div>
-    </div>
-
-    <!-- TIMBRE -->
-    <div class="fgroup">
-      <label>Timbre (tono de voz del aparato)</label>
-      <div class="btn-row">
-        <button class="pill" data-p="1">Normal</button>
-        <button class="pill" data-p="0.8">Grave</button>
-        <button class="pill" data-p="0.6">Muy grave</button>
-      </div>
-      <div class="row-slide" style="margin-top:8px">
-        <input type="range" id="pitch" min="0.5" max="1.5" step="0.05" value="0.8">
-        <div class="val" id="pitchV">0.8</div>
-      </div>
-      <p class="help">No afecta a los audios MP3 pregenerados.</p>
-    </div>
-
-    <!-- OPCIONES -->
-    <div class="fgroup">
-      <label>Opciones</label>
-      <label class="toggle">
-        <input type="checkbox" id="follow" checked><span class="sw"></span>
-        <span class="lbl">Seguir el texto mientras lee<span class="mut">El párrafo activo se centra solo</span></span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="announce" checked><span class="sw"></span>
-        <span class="lbl">Anunciar la duración<span class="mut">Al empezar cada capítulo</span></span>
-      </label>
-    </div>
-
-    <!-- TEMPORIZADOR -->
-    <div class="fgroup">
-      <label>Temporizador de sueño</label>
+    <div class="fg">
+      <label class="fh">Temporizador de sueño</label>
       <select class="full" id="sleep">
         <option value="0">Sin temporizador</option>
-        <option value="15">Detener en 15 minutos</option>
-        <option value="30">Detener en 30 minutos</option>
+        <option value="15">Detener en 15 min</option>
+        <option value="30">Detener en 30 min</option>
         <option value="60">Detener en 1 hora</option>
       </select>
     </div>
-
-    <!-- ACCIONES -->
-    <div class="fgroup">
-      <label>Acciones</label>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="action-btn" id="test"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>Probar la voz actual</button>
-        <button class="action-btn" id="expBtn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar el texto del libro (.txt)</button>
-      </div>
+    <div class="fg">
+      <button class="actbtn" id="expBtn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar texto del libro (.txt)</button>
+      <p class="mut" style="font-size:12px;color:var(--tx-mut);margin:8px 2px 0;line-height:1.5">Pásaselo al computador para generar el audio allá.</p>
     </div>
-
+    <details class="adv">
+      <summary><span class="chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>Opción avanzada: voz del teléfono</summary>
+      <div class="vwarn" id="vwarn">Tu iPhone no trae ninguna voz masculina natural en español — solo las que ves abajo (suenan robóticas). Para voz natural, usa el MP3 generado en el computador.</div>
+      <select class="full" id="voice" style="margin-bottom:8px"></select>
+      <p class="mut" id="vinfo" style="font-size:12px;color:var(--tx-mut);margin:0 0 10px"></p>
+      <button class="actbtn" id="test"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>Probar esta voz</button>
+    </details>
   </div>
 </div>
 
 <!-- ============ DICT SHEET ============ -->
 <div class="sheet" id="dict">
-  <div class="sheet-hd">
-    <div class="hndl"></div>
-    <h3>Diccionario</h3>
-    <button class="cls" data-close><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <div class="sheet-hd"><div class="hndl"></div><h3>Diccionario</h3><button class="cls" data-close><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="sheet-body">
+    <div class="dq-row"><input id="dq" type="text" placeholder="Escribe una palabra…" autocomplete="off" autocapitalize="none"><button id="dgo">Buscar</button></div>
+    <p class="mut" style="color:var(--tx-mut);font-size:13.5px;margin:0 0 10px">O activa este modo y toca cualquier palabra del texto.</p>
+    <button class="actbtn" id="dictModeBtn" style="margin-bottom:14px"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="dictModeTxt">Activar modo diccionario</span></button>
+    <div id="dres" style="color:var(--tx-mut);font-size:14px">Busca una palabra arriba.</div>
   </div>
-  <div class="sheet-bd-in">
-    <div class="dq-row">
-      <input id="dq" type="text" placeholder="Escribe una palabra…" autocomplete="off" autocapitalize="none">
-      <button id="dgo">Buscar</button>
-    </div>
-    <div id="dres" style="color:var(--tx-mut)">Activa el modo diccionario con el chip inferior y toca una palabra del texto.</div>
+</div>
+
+<!-- ============ SUMMARY SHEET ============ -->
+<div class="sheet" id="sumSheet">
+  <div class="sheet-hd"><div class="hndl"></div><h3>Resumen</h3><button class="cls" data-close><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="sheet-body">
+    <button class="actbtn pri" id="sumChBtn" style="margin-bottom:8px">Resumen del capítulo actual</button>
+    <button class="actbtn" id="sumBookBtn">Resumen del libro completo</button>
+    <p class="mut" style="font-size:12.5px;color:var(--tx-mut);margin:12px 2px 0;line-height:1.5">El resumen se lee con la voz del teléfono (no necesita MP3).</p>
   </div>
 </div>
 
@@ -592,118 +421,58 @@ const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 
 /* ---------- THEME ---------- */
 const Theme = {
-  init(){
-    const saved = localStorage.getItem('theme') || 'auto';
-    this.apply(saved);
-    document.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => { this.apply(b.dataset.themeSet); });
-  },
+  init(){ this.apply(localStorage.getItem('theme')||'auto'); document.querySelectorAll('[data-theme-set]').forEach(b=>b.onclick=()=>this.apply(b.dataset.themeSet)); },
   apply(mode){
     localStorage.setItem('theme', mode);
-    let eff = mode;
-    if(mode === 'auto'){ eff = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+    let eff = mode === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light') : mode;
     document.documentElement.setAttribute('data-theme', eff);
-    document.querySelectorAll('[data-theme-set]').forEach(b => b.classList.toggle('on', b.dataset.themeSet === mode));
-    const ico = $('themeIco');
-    if(eff === 'dark') ico.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-    else ico.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    document.querySelectorAll('[data-theme-set]').forEach(b=>b.classList.toggle('on', b.dataset.themeSet===mode));
+    $('themeIco').innerHTML = eff==='dark' ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
   },
-  toggle(){
-    const cur = localStorage.getItem('theme') || 'auto';
-    const next = cur === 'auto' ? (document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark') : (cur === 'dark' ? 'light' : 'dark');
-    this.apply(next);
-  }
+  toggle(){ const cur=localStorage.getItem('theme')||'auto'; const next = cur==='auto' ? (document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark') : (cur==='dark'?'light':'dark'); this.apply(next); }
 };
 
 /* ---------- SHEETS ---------- */
 const Sheet = {
   open(id){ $('sheetBd').classList.add('on'); $(id).classList.add('on'); },
-  close(){ $('sheetBd').classList.remove('on'); document.querySelectorAll('.sheet').forEach(s => s.classList.remove('on')); },
-  init(){
-    $('sheetBd').onclick = () => this.close();
-    document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => this.close());
-  }
+  close(){ $('sheetBd').classList.remove('on'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on')); },
+  init(){ $('sheetBd').onclick=()=>this.close(); document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>this.close()); }
 };
 
-/* ---------- SERVER (local Python edge-tts) ---------- */
-const Srv = {
-  base:null, voices:[], probing:false,
-  async probe(){
-    if(this.probing) return; this.probing=true;
-    const candidates = location.origin.startsWith('http') && !location.origin.includes('github') ? [location.origin] : [];
-    candidates.push('http://127.0.0.1:8732','http://localhost:8732');
-    for(const b of candidates){
-      try{
-        const c = new AbortController(); const t=setTimeout(()=>c.abort(),1200);
-        const r = await fetch(b+'/api/voces',{signal:c.signal}); clearTimeout(t);
-        if(r.ok){ const j = await r.json(); if(j && j.voces){ this.base=b; this.voices=j.voces; this.on(); return; } }
-      }catch(e){}
-    }
-    this.probing=false;
-  },
-  on(){
-    const sel = $('srvVoice');
-    sel.innerHTML = this.voices.map((v,i) => `<option value="${i}">${v.nombre}  (${v.pais} · ${v.genero})</option>`).join('');
-    const saved = localStorage.getItem('srvVoice');
-    const i = this.voices.findIndex(v => v.id===saved);
-    sel.value = i>=0 ? i : 0;
-    $('srvPanel').style.display='block';
-    $('srvBadge').classList.add('on');
-    $('srvDesc').textContent = 'Conectado a '+this.base+'. Voces naturales de Microsoft listas.';
-    sel.onchange = () => localStorage.setItem('srvVoice', this.voices[+sel.value].id);
-  },
-  async generate(texto, voz, onProg){
-    const r = await fetch(this.base+'/api/generar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto, voz})});
-    if(!r.ok){ const t=await r.text(); throw new Error(t||'Error del servidor'); }
-    const reader = r.body.getReader(); const chunks=[]; let got=0; const total=+r.headers.get('X-Bytes-Estimate')||0;
-    while(true){ const {value, done} = await reader.read(); if(done) break; chunks.push(value); got+=value.length; if(total) onProg&&onProg(got/total); }
-    return new Blob(chunks, {type:'audio/mpeg'});
-  }
-};
-
-/* ---------- STORE (IndexedDB con respaldo en memoria) ---------- */
+/* ---------- STORE ---------- */
 const Store = (() => {
-  let db = null, mem = new Map(), memA = new Map(), persistent = false;
-  const open = () => new Promise(res => {
-    try {
-      const rq = indexedDB.open('audiolibro', 2);
-      rq.onupgradeneeded = () => { const d=rq.result;
-        if(!d.objectStoreNames.contains('books')) d.createObjectStore('books', {keyPath:'id'});
-        if(!d.objectStoreNames.contains('audio')) d.createObjectStore('audio', {keyPath:'key'}); };
-      rq.onsuccess = () => { db = rq.result; persistent = true; res(); };
-      rq.onerror = () => res();
-    } catch(e){ res(); }
-  });
+  let db=null, mem=new Map(), memA=new Map(), persistent=false;
+  const open = () => new Promise(res => { try{
+    const rq = indexedDB.open('audiolibro', 2);
+    rq.onupgradeneeded = () => { const d=rq.result;
+      if(!d.objectStoreNames.contains('books')) d.createObjectStore('books',{keyPath:'id'});
+      if(!d.objectStoreNames.contains('audio')) d.createObjectStore('audio',{keyPath:'key'}); };
+    rq.onsuccess = () => { db=rq.result; persistent=true; res(); };
+    rq.onerror = () => res();
+  }catch(e){ res(); } });
   const tx = (store, mode, fn) => new Promise((res, rej) => {
-    const t = db.transaction(store, mode), s = t.objectStore(store); const r = fn(s);
-    t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
+    const t=db.transaction(store, mode), s=t.objectStore(store); const r=fn(s);
+    t.oncomplete=()=>res(r&&r.result); t.onerror=()=>rej(t.error);
   });
   return {
-    init: open,
-    get persistent(){ return persistent; },
-    async all(){ if(db){ try{ return await tx('books','readonly', s => s.getAll()); }catch(e){} } return [...mem.values()]; },
-    async put(b){ mem.set(b.id,b); if(db){ try{ await tx('books','readwrite', s => s.put(b)); }catch(e){} } },
-    async del(id){ mem.delete(id); if(db){ try{ await tx('books','readwrite', s => s.delete(id)); }catch(e){} } await this.delAudio(id+':'); },
-    async putAudio(key, blob){ if(!db) memA.set(key, blob); else { try{ await tx('audio','readwrite', s => s.put({key, blob})); }catch(e){ memA.set(key, blob); } } },
-    async getAudio(key){ if(db){ try{ const r = await tx('audio','readonly', s => s.get(key)); if(r) return r.blob; }catch(e){} } return memA.get(key) || null; },
-    async audioKeys(prefix){ let ks=[]; if(db){ try{ ks = await tx('audio','readonly', s => s.getAllKeys()); }catch(e){} } return [...new Set([...ks, ...memA.keys()])].filter(k => k.startsWith(prefix)); },
-    async delAudio(prefix){ for(const k of await this.audioKeys(prefix)){ memA.delete(k); if(db){ try{ await tx('audio','readwrite', s => s.delete(k)); }catch(e){} } } },
+    init: open, get persistent(){ return persistent; },
+    async all(){ if(db){ try{ return await tx('books','readonly', s=>s.getAll()); }catch(e){} } return [...mem.values()]; },
+    async put(b){ mem.set(b.id,b); if(db){ try{ await tx('books','readwrite', s=>s.put(b)); }catch(e){} } },
+    async del(id){ mem.delete(id); if(db){ try{ await tx('books','readwrite', s=>s.delete(id)); }catch(e){} } await this.delAudio(id+':'); },
+    async putAudio(key, blob){ if(!db) memA.set(key, blob); else { try{ await tx('audio','readwrite', s=>s.put({key,blob})); }catch(e){ memA.set(key,blob); } } },
+    async getAudio(key){ if(db){ try{ const r=await tx('audio','readonly', s=>s.get(key)); if(r) return r.blob; }catch(e){} } return memA.get(key)||null; },
+    async audioKeys(prefix){ let ks=[]; if(db){ try{ ks=await tx('audio','readonly', s=>s.getAllKeys()); }catch(e){} } return [...new Set([...ks,...memA.keys()])].filter(k=>k.startsWith(prefix)); },
+    async delAudio(prefix){ for(const k of await this.audioKeys(prefix)){ memA.delete(k); if(db){ try{ await tx('audio','readwrite', s=>s.delete(k)); }catch(e){} } } },
   };
 })();
 
 /* ---------- TXT ---------- */
 function parseTxt(name, text){
   const paras = text.replace(/\r/g,'').split(/\n\s*\n+/).map(s=>s.replace(/\s*\n\s*/g,' ').trim()).filter(s=>s.length>1);
-  const chapters = []; let cur = null;
-  const isHead = s => s.length < 70 && /^(cap[ií]tulo|chapter|parte|libro)\b/i.test(s);
-  for(const p of paras){
-    if(isHead(p)){ cur = {title:p, paras:[]}; chapters.push(cur); continue; }
-    if(!cur){ cur = {title:'Inicio', paras:[]}; chapters.push(cur); }
-    cur.paras.push(p);
-  }
-  if(chapters.length <= 1 && paras.length > 60){
-    chapters.length = 0;
-    for(let i=0,n=1;i<paras.length;i+=40,n++) chapters.push({title:'Parte '+n, paras:paras.slice(i,i+40)});
-  }
+  const chapters=[]; let cur=null;
+  const isHead = s => s.length<70 && /^(cap[ií]tulo|chapter|parte|libro)\b/i.test(s);
+  for(const p of paras){ if(isHead(p)){ cur={title:p,paras:[]}; chapters.push(cur); continue; } if(!cur){ cur={title:'Inicio',paras:[]}; chapters.push(cur); } cur.paras.push(p); }
+  if(chapters.length<=1 && paras.length>60){ chapters.length=0; for(let i=0,n=1;i<paras.length;i+=40,n++) chapters.push({title:'Parte '+n, paras:paras.slice(i,i+40)}); }
   return {title:name.replace(/\.[^.]+$/,''), chapters:chapters.filter(c=>c.paras.length)};
 }
 
@@ -843,7 +612,7 @@ async function parseEpub(file){
   return {title, chapters};
 }
 
-/* ---------- VOICE (speechSynthesis) ---------- */
+/* ---------- VOICE (fallback del teléfono) ---------- */
 const Voice = {
   synth: window.speechSynthesis, voices: [], token: 0, playing: false, sleepT: null,
   natural: v => (/natural|neural|online|premium|enhanced|mejorad|wavenet|studio|siri|network|google/i.test(v.name+' '+v.voiceURI) || v.localService === false) ? 1 : 0,
@@ -858,21 +627,21 @@ const Voice = {
     const unk   = x => !this.MALE.test(x.name) && !this.FEMALE.test(x.name);
     const tiers = [
       [latam.filter(x=>male(x)&&this.natural(x)), 'voces masculinas, naturales y latinoamericanas'],
-      [latam.filter(male), 'voces masculinas latinoamericanas (ninguna marcada como natural)'],
-      [latam.filter(x=>unk(x)&&this.natural(x)), 'voces naturales latinoamericanas (género incierto por el nombre)'],
+      [latam.filter(male), 'voces masculinas latinoamericanas'],
+      [latam.filter(x=>unk(x)&&this.natural(x)), 'voces naturales (género incierto)'],
       [latam.filter(x=>!this.FEMALE.test(x.name)), 'voces latinoamericanas'],
       [all.filter(x=>/^es/i.test(x.lang) && !this.FEMALE.test(x.name)), 'voces en español'],
-      [all.filter(x=>/^es/i.test(x.lang)), 'voces en español (tu aparato solo trae femeninas)'],
-      [all, 'todas las voces del aparato']
+      [all.filter(x=>/^es/i.test(x.lang)), 'voces en español (solo femeninas disponibles)'],
+      [all, 'todas las voces del teléfono']
     ];
-    const hit = $('allv') && $('allv').checked ? [all,'todas las voces del aparato'] : (tiers.find(t=>t[0].length) || tiers[tiers.length-1]);
+    const hit = tiers.find(t=>t[0].length) || tiers[tiers.length-1];
     this.voices = [...hit[0]].sort((a,b)=> this.natural(b)-this.natural(a) || this.region(a)-this.region(b) || a.name.localeCompare(b.name));
     const sel = $('voice'), saved = localStorage.getItem('voice')||'';
     sel.innerHTML = this.voices.map((x,i)=>`<option value="${i}">${x.name} (${x.lang})</option>`).join('');
     const i = this.voices.findIndex(x=>x.voiceURI===saved);
     sel.value = i>=0 ? i : 0;
     $('vinfo').textContent = 'Mostrando '+hit[1]+' ('+this.voices.length+').';
-    const good = tiers[0][0].length>0; $('vwarn').classList.toggle('on', !good && !Srv.base);
+    const good = tiers[0][0].length>0; $('vwarn').classList.toggle('on', !good);
   },
   clean(t){
     const ab = {'Sr':'Señor','Sra':'Señora','Srta':'Señorita','Dr':'Doctor','Dra':'Doctora','Ud':'usted','Uds':'ustedes','Prof':'Profesor','Av':'Avenida','Art':'Artículo','art':'artículo','Nº':'número','N°':'número','No':'No'};
@@ -895,7 +664,7 @@ const Voice = {
     parts.forEach((t,i)=>{
       const u = new SpeechSynthesisUtterance(this.clean(t) || ' ');
       if(v){ u.voice=v; u.lang=v.lang; } else u.lang='es-ES';
-      u.rate=+$('rate').value; u.pitch=+$('pitch').value;
+      u.rate=+$('rate').value; u.pitch=0.85;
       u.onend = () => { if(my===this.token && i===parts.length-1) onDone && onDone(); };
       u.onstart = () => { if(my===this.token && onChunk) onChunk(i); };
       u.onerror = () => {};
@@ -904,10 +673,7 @@ const Voice = {
   },
   cancel(){ this.token++; if(this.synth) this.synth.cancel(); },
   stop(){ this.playing=false; this.cancel(); },
-  setSleep(min){
-    clearTimeout(this.sleepT); if(!+min) return;
-    this.sleepT = setTimeout(()=>{ App.pause(); toast('Temporizador: lectura detenida'); }, min*60000);
-  }
+  setSleep(min){ clearTimeout(this.sleepT); if(!+min) return; this.sleepT = setTimeout(()=>{ App.pause(); toast('Temporizador: lectura detenida'); }, min*60000); }
 };
 
 /* ---------- RESÚMENES ---------- */
@@ -927,8 +693,7 @@ function summarize(paras, k){
 
 /* ---------- TIME ---------- */
 const Time = {
-  wpm: +(localStorage.getItem('wpm')||0) || 155,
-  ms: 0, t0: null, iv: null,
+  wpm: +(localStorage.getItem('wpm')||0) || 155, ms: 0, t0: null, iv: null,
   words: arr => arr.reduce((a,p)=>a+(p.trim().split(/\s+/).length),0),
   mins(words){ return words/(this.wpm*Math.max(0.5,+$('rate').value)); },
   fmt(m){ if(m<1) return '<1 min'; m=Math.round(m); const h=Math.floor(m/60); return h? h+' h '+String(m%60).padStart(2,'0')+' min' : m+' min'; },
@@ -940,10 +705,8 @@ const Time = {
   start(){ if(this.t0===null) this.t0=Date.now(); if(!this.iv) this.iv=setInterval(()=>App.bar(),500); },
   stop(){ if(this.t0!==null){ this.ms+=Date.now()-this.t0; this.t0=null; } clearInterval(this.iv); this.iv=null; App.bar(); },
   reset(){ this.ms=0; this.t0=(this.t0!==null)?Date.now():null; },
-  learn(words, ms){
-    if(words<15||ms<3000) return; const obs = words/(ms/60000)/Math.max(0.5,+$('rate').value);
-    if(obs<60||obs>400) return; this.wpm = this.wpm*0.7 + obs*0.3; try{ localStorage.setItem('wpm', this.wpm.toFixed(1)); }catch(e){}
-  }
+  learn(words, ms){ if(words<15||ms<3000) return; const obs = words/(ms/60000)/Math.max(0.5,+$('rate').value);
+    if(obs<60||obs>400) return; this.wpm = this.wpm*0.7 + obs*0.3; try{ localStorage.setItem('wpm', this.wpm.toFixed(1)); }catch(e){} }
 };
 
 /* ---------- DICT ---------- */
@@ -1014,7 +777,7 @@ const Dict = {
       if(v===w.toLowerCase()){ const cap=v[0].toUpperCase()+v.slice(1); const r=await this.tryWikt(cap); if(r.ents){ found=r.ents; used=cap; break; } }
     }
     const enc=encodeURIComponent(used.toLowerCase());
-    const links=`<div style="margin-top:10px;font-size:13px;color:var(--tx-mut)">Ver en: <a href="https://dle.rae.es/${enc}" target="_blank" rel="noopener">Diccionario RAE</a> · <a href="https://es.wiktionary.org/wiki/${enc}" target="_blank" rel="noopener">Wikcionario</a></div>`;
+    const links=`<div style="margin-top:10px;font-size:13px;color:var(--tx-mut)">Ver en: <a href="https://dle.rae.es/${enc}" target="_blank" rel="noopener">RAE</a> · <a href="https://es.wiktionary.org/wiki/${enc}" target="_blank" rel="noopener">Wikcionario</a></div>`;
     if(!found){
       const msg = netErr>=tried.length ? 'No pude conectarme al diccionario (revisa internet).' : 'No encontré “'+esc(w)+'” en el diccionario (probé: '+esc(tried.join(', '))+').';
       box.innerHTML='<h4>'+esc(w)+'</h4><div style="color:var(--tx-mut)">'+msg+'</div>'+links; this.spoken=''; return; }
@@ -1022,7 +785,7 @@ const Dict = {
     found.slice(0,3).forEach(en=>{ const defs=en.defs.slice(0,4);
       html+='<div class="pos">'+esc(en.pos)+'</div><ol>'+defs.map(d=>'<li>'+esc(d)+'</li>').join('')+'</ol>';
       spoken+=(en.pos?en.pos+'. ':'')+defs.map((d,i)=>(i+1)+'. '+d).join('. ')+'. '; });
-    box.innerHTML=html+'<button class="action-btn" id="dsay" style="margin-top:12px"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>Leer significado</button>'+links;
+    box.innerHTML=html+'<button class="actbtn" id="dsay" style="margin-top:12px"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>Leer significado</button>'+links;
     box.querySelector('h4').textContent = used.toLowerCase()!==w.toLowerCase()? used+'  (de “'+w+'”)' : used;
     this.spoken=spoken; $('dsay').onclick=()=>{ App.pause(); Voice.speak(spoken,()=>{}); };
   }
@@ -1088,11 +851,7 @@ function setPlayUI(on){
 }
 
 /* ---------- APP ---------- */
-const COVERS = [
-  ['#a1551c','#d97b2d'],['#2d5a7a','#4a87b0'],['#5e2d6a','#8a4d99'],
-  ['#2d6a4f','#52b788'],['#6a2d3f','#a04d5f'],['#6a5d2d','#a09a4d'],
-  ['#2d4a6a','#4d7fa0'],['#6a2d2d','#9f4d4d'],['#3d6a2d','#6ba04d']
-];
+const COVERS = ['#a1551c','#2d5a7a','#5e2d6a','#2d6a4f','#6a2d3f','#6a5d2d','#2d4a6a','#6a2d2d','#3d6a2d'];
 const App = {
   book:null, c:0, p:0, mode:'book', sum:[], sumLabel:'', audPlaying:false, dictMode:false,
   async refresh(){
@@ -1102,26 +861,25 @@ const App = {
     if(!list.length){ box.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div>Aún no hay libros. Carga uno arriba.</div></div>'; }
     list.sort((a,b)=>(b.last||0)-(a.last||0)).forEach((b,idx)=>{
       const totalP = b.chapters.reduce((a,c)=>a+c.paras.length,0);
-      const curP = (b.c||0)*0 + (b.p||0);
       const doneP = b.chapters.slice(0, b.c||0).reduce((a,c)=>a+c.paras.length,0) + (b.p||0);
       const prog = totalP ? Math.min(100, doneP/totalP*100) : 0;
-      const [c1,c2] = COVERS[idx % COVERS.length];
+      const color = COVERS[idx % COVERS.length];
       const letter = (b.title||'?').replace(/^\W+/,'')[0] || '?';
-      const d = document.createElement('div'); d.className='book-card';
+      const d = document.createElement('div'); d.className='book';
       d.innerHTML = `
-        <div class="book-cover" style="background:linear-gradient(135deg,${c1},${c2})">${esc(letter.toUpperCase())}</div>
-        <div class="book-info">
+        <div class="cover" style="background:${color}">${esc(letter.toUpperCase())}</div>
+        <div class="info">
           <div class="t"></div>
-          <div class="m"><span>${b.chapters.length} cap.</span><span class="dot"></span><span>${totalP} párrafos</span>${prog>1?`<span class="dot"></span><span>${Math.round(prog)}%</span>`:''}</div>
-          ${prog>1?`<div class="prog"><div class="prog-fill" style="width:${prog}%"></div></div>`:''}
+          <div class="m"><span>${b.chapters.length} cap.</span>${prog>1?`<span>· ${Math.round(prog)}%</span>`:''}</div>
+          ${prog>1?`<div class="bar"><i style="width:${prog}%"></i></div>`:''}
         </div>
-        <button class="book-del" title="Borrar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>`;
+        <button class="del"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>`;
       d.querySelector('.t').textContent = b.title;
-      d.onclick = e => { if(!e.target.closest('.book-del')) this.open(b); };
-      d.querySelector('.book-del').onclick = async e => { e.stopPropagation(); if(confirm('¿Borrar "'+b.title+'"?')){ await Store.del(b.id); this.refresh(); } };
+      d.onclick = e => { if(!e.target.closest('.del')) this.open(b); };
+      d.querySelector('.del').onclick = async e => { e.stopPropagation(); if(confirm('¿Borrar "'+b.title+'"?')){ await Store.del(b.id); this.refresh(); } };
       box.appendChild(d);
     });
-    $('storeNote').textContent = Store.persistent ? 'Los libros se guardan en este dispositivo.' : 'Aviso: aquí los libros duran solo mientras esta página esté abierta.';
+    $('storeNote').textContent = Store.persistent ? 'Los libros se guardan en este teléfono.' : 'Aviso: aquí los libros duran solo mientras esta página esté abierta.';
   },
   async add(b){
     b.id = 'b'+Date.now()+Math.random().toString(36).slice(2,6); b.c=0; b.p=0; b.last=Date.now();
@@ -1130,9 +888,8 @@ const App = {
   async open(b){
     this.book=b; this.c=b.c||0; this.p=b.p||0; this.mode='book'; this.introKey=null; Time.ms=0; Time.t0=null;
     $('lib').style.display='none'; $('reader').style.display='block'; $('back').style.display='';
-    $('title').textContent = b.title;
-    $('subtitle').textContent = b.chapters.length+' capítulos';
-    await Aud.refresh(); this.fillChap(); this.render(); this.updateGenBtn();
+    $('title').textContent = b.title; $('subtitle').textContent = b.chapters.length+' capítulos';
+    await Aud.refresh(); this.fillChap(); this.render();
   },
   fillChap(){
     $('chap').innerHTML = this.book.chapters.map((c,i)=>`<option value="${i}">${Aud.has(i)?'🎧 ':''}${i+1}. ${c.title.replace(/</g,'&lt;')}</option>`).join('');
@@ -1141,38 +898,33 @@ const App = {
     $('chapNext').disabled = this.c >= this.book.chapters.length-1;
   },
   chapterStep(d){ const n=this.c+d; if(n<0||n>=this.book.chapters.length) return; const was=this.audPlaying||Voice.playing;
-    this.pause(); this.c=n; this.p=0; this.introKey=null; Time.ms=0; this.mode='book'; this.render(); this.updateGenBtn(); if(was) this.play(); },
-  updateGenBtn(){
-    const has = this.book && Aud.has(this.c);
-    $('genBtnTxt').textContent = has ? 'Regenerar audio del capítulo' : 'Generar audio del capítulo actual';
-    $('genBtnQuick').style.display = Srv.base ? 'inline-flex' : 'none';
-    $('genBtnQuick').classList.toggle('pri', !has && Srv.base);
-  },
+    this.pause(); this.c=n; this.p=0; this.introKey=null; Time.ms=0; this.mode='book'; this.render(); if(was) this.play(); },
   exportTxt(){
     const b=this.book, out=[];
     b.chapters.forEach((ch,i)=>{ const t=ch.title.replace(/^(cap[ií]tulo|parte|secci[oó]n)\s*\d*\s*[.:\-–]?\s*/i,'').replace(/\s+/g,' ').trim().slice(0,45);
       out.push('Capítulo '+(i+1)+'. '+t,''); (ch.paras[0]===ch.title?ch.paras.slice(1):ch.paras).forEach(p=>out.push(p,'')); });
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([out.join('\n')],{type:'text/plain;charset=utf-8'}));
     a.download=(b.title.replace(/[^\w\- áéíóúñ]/g,'').trim().slice(0,40)||'libro')+'.txt'; document.body.appendChild(a); a.click(); a.remove();
-    toast('Texto del libro guardado');
+    toast('Texto guardado');
   },
-  close(){ this.pause(); try{ AU.removeAttribute('src'); AU.load(); }catch(e){} Aud.loadedC=-1; this.book=null; $('reader').style.display='none'; $('lib').style.display='block'; $('back').style.display='none'; $('title').textContent='Mi Audiolibro'; $('subtitle').textContent='Tu biblioteca personal'; this.refresh(); },
+  close(){ this.pause(); try{ AU.removeAttribute('src'); AU.load(); }catch(e){} Aud.loadedC=-1; this.book=null; $('reader').style.display='none'; $('lib').style.display='block'; $('back').style.display='none'; $('title').textContent='Mi Audiolibro'; $('subtitle').textContent='Tu biblioteca'; this.refresh(); },
   bar(){
     if(!this.book) return; const ps=this.paras(), tot=Time.words(ps), rem=Time.words(ps.slice(this.p));
     const name = this.mode==='summary' ? this.sumLabel : this.book.chapters[this.c].title;
     $('estTitle').textContent = (this.mode==='summary'?'📝 ':'')+name;
-    let sub, prog = 0;
-    if(Aud.active() && AU.duration>0 && Aud.loadedC===this.c){
+    let sub, prog = 0, hasAudio = this.mode==='book' && Aud.active();
+    if(hasAudio && AU.duration>0 && Aud.loadedC===this.c){
       const r=Math.max(0.5,+$('rate').value);
-      sub = '🎧 '+Time.fmt(AU.duration/60/r)+' · faltan '+Time.fmt((AU.duration-AU.currentTime)/60/r);
+      sub = 'Dura '+Time.fmt(AU.duration/60/r)+' · faltan '+Time.fmt((AU.duration-AU.currentTime)/60/r);
       prog = AU.currentTime / AU.duration * 100;
     } else {
-      sub = '~'+Time.fmt(Time.mins(tot))+' · faltan ~'+Time.fmt(Time.mins(rem));
+      sub = (this.mode==='summary'?'~':'Sin audio MP3 · ~')+Time.fmt(Time.mins(tot))+' leído con voz del teléfono';
       prog = tot ? (tot-rem)/tot*100 : 0;
     }
     $('estSub').textContent = sub;
-    $('progFill').style.width = Math.max(0, Math.min(100, prog))+'%';
+    $('sfill').style.width = Math.max(0, Math.min(100, prog))+'%';
     $('clock').textContent = Time.clock();
+    $('nosource').classList.toggle('on', this.mode==='book' && !hasAudio);
   },
   intro(){
     if(this.mode!=='book' || this.p!==0 || !$('announce').checked) return null;
@@ -1184,7 +936,7 @@ const App = {
   paras(){ return this.mode==='book' ? this.book.chapters[this.c].paras : this.sum; },
   render(){
     const box = $('text'); box.innerHTML='';
-    if(this.mode==='summary'){ const h=document.createElement('p'); h.className='mut'; h.textContent='📝 '+this.sumLabel+' — toca el chip para regresar'; box.appendChild(h); }
+    if(this.mode==='summary'){ const h=document.createElement('p'); h.className='mut'; h.textContent='📝 '+this.sumLabel; box.appendChild(h); }
     this.paras().forEach((t,i)=>{ const p=document.createElement('p'); p.textContent=t; p.onclick=(e)=>{ if(this.dictMode){ const w=Dict.wordAt(e.clientX,e.clientY); if(w) Dict.lookup(w); return; } this.p=i; this.mark(); if(Aud.active()) Aud.seekTo(i); else if(Voice.playing) this.say(); }; box.appendChild(p); });
     $('chap').value=this.c; this.mark(true); this.bar(); Aud.ensure().then(()=>this.bar());
   },
@@ -1228,13 +980,9 @@ const App = {
   pause(){ this.audPlaying=false; try{ AU.pause(); }catch(e){} Time.stop(); Voice.stop(); setPlayUI(false); try{ this.wl && this.wl.release(); }catch(e){} },
   toggle(){ (Voice.playing||this.audPlaying) ? this.pause() : this.play(); },
   step(d){ const n=this.p+d; if(n<0||n>=this.paras().length) return; this.p=n; this.mark(); if(Aud.active()) Aud.seekTo(n); else if(Voice.playing) this.say(); },
-  startSummary(label, paras){
-    this.pause(); this.mode='summary'; this.sum=paras; this.sumLabel=label; this.p=0; this.render();
-    this.play();
-  },
+  startSummary(label, paras){ this.pause(); this.mode='summary'; this.sum=paras; this.sumLabel=label; this.p=0; this.render(); this.play(); },
   backToBook(){ this.pause(); this.mode='book'; this.p=this.book.p||0; this.render(); },
   sumChapter(){
-    if(this.mode==='summary') return this.backToBook();
     const ch = this.book.chapters[this.c], n = sentences(ch.paras).length, k = Math.max(3, Math.min(10, Math.round(n*0.12)));
     this.startSummary('Resumen de: '+ch.title, ['Resumen de '+ch.title+'.', ...summarize(ch.paras,k)]);
   },
@@ -1242,30 +990,6 @@ const App = {
     const out = ['Resumen del libro '+this.book.title+'.'];
     this.book.chapters.forEach((ch,i)=>{ const s=summarize(ch.paras,2); if(s.length) out.push('Capítulo '+(i+1)+'. '+ch.title+'.', ...s); });
     this.startSummary('Resumen del libro', out);
-  },
-  async genChapter(){
-    if(!Srv.base || !this.book) return;
-    const ch = this.book.chapters[this.c];
-    const voz = Srv.voices[+$('srvVoice').value];
-    const textoParts = [ch.title + '. '].concat(ch.paras.map(p => Voice.clean(p)));
-    const texto = textoParts.join(' ');
-    const prog = $('genProg'), fill = $('genFill'), lbl = $('genLbl'), pct = $('genPct');
-    prog.classList.add('on'); fill.style.width='3%'; lbl.textContent='Generando con '+voz.nombre+'…'; pct.textContent='';
-    $('genBtn').disabled = true; $('genBtnQuick').disabled = true;
-    try{
-      const blob = await Srv.generate(texto, voz.id, f => { fill.style.width = (3+f*95)+'%'; pct.textContent = Math.round(f*100)+'%'; });
-      fill.style.width='100%'; pct.textContent='100%'; lbl.textContent='Guardando…';
-      await Store.putAudio(this.book.id+':'+this.c, blob);
-      await Aud.refresh(); this.fillChap(); this.render(); this.updateGenBtn();
-      toast('Audio generado y listo');
-      setTimeout(()=>prog.classList.remove('on'), 1500);
-    }catch(e){
-      lbl.textContent='Error: '+e.message; fill.style.width='0%';
-      toast('Error al generar: '+e.message, 4500);
-      setTimeout(()=>prog.classList.remove('on'), 3000);
-    }finally{
-      $('genBtn').disabled = false; $('genBtnQuick').disabled = false;
-    }
   }
 };
 
@@ -1281,87 +1005,62 @@ $('file').onchange = async e => {
   }
   e.target.value='';
 };
-// Drag and drop
-const dz = $('dropZone');
-['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('dragging'); }));
-['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('dragging'); }));
-dz.addEventListener('drop', async ev => {
-  for(const f of ev.dataTransfer.files){
-    try{
-      toast('Leyendo '+f.name+'…');
-      const b = /\.pdf$/i.test(f.name) ? await parsePdf(f) : /\.epub$/i.test(f.name) ? await parseEpub(f) : parseTxt(f.name, await f.text());
-      if(!b.chapters.length) throw new Error('El archivo no tiene texto');
-      await App.add(b);
-    }catch(err){ toast('Error: '+err.message, 4500); }
-  }
-});
-
+$('pasteToggle').onclick = () => { $('pasteWrap').classList.toggle('on'); };
 $('pasteBtn').onclick = async () => {
   const t = $('paste').value.trim(); if(t.length<20) return toast('Pega un texto más largo');
-  await App.add(parseTxt('Texto pegado '+new Date().toLocaleString('es-CL'), t)); $('paste').value='';
+  await App.add(parseTxt('Texto pegado '+new Date().toLocaleString('es-CL'), t)); $('paste').value=''; $('pasteWrap').classList.remove('on');
 };
-$('back').onclick = () => { App.dictMode=false; $('dictBtn').classList.remove('active'); App.close(); };
+$('onbClose').onclick = () => { $('onb').classList.add('closed'); localStorage.setItem('onbClosed','1'); };
+if(localStorage.getItem('onbClosed')==='1') $('onb').classList.add('closed');
+
+$('back').onclick = () => { App.dictMode=false; App.close(); };
 $('themeBtn').onclick = () => Theme.toggle();
 $('play').onclick = () => App.toggle();
 $('prev').onclick = () => App.step(-1);
 $('next').onclick = () => App.step(1);
 $('chapPrev').onclick = () => App.chapterStep(-1);
 $('chapNext').onclick = () => App.chapterStep(1);
-$('sumCh').onclick = () => App.sumChapter();
-$('sumBook').onclick = () => App.sumWhole();
+$('chap').onchange = e => { App.pause(); App.c=+e.target.value; App.p=0; App.mode='book'; App.introKey=null; Time.ms=0; App.render(); };
+
 $('settingsBtn').onclick = () => Sheet.open('settingsSheet');
-$('dictBtn').onclick = () => {
+$('sumBtn').onclick = () => Sheet.open('sumSheet');
+$('sumChBtn').onclick = () => { Sheet.close(); App.sumChapter(); };
+$('sumBookBtn').onclick = () => { Sheet.close(); App.sumWhole(); };
+
+$('dictBtn').onclick = () => Sheet.open('dict');
+$('dictModeBtn').onclick = () => {
   App.dictMode = !App.dictMode;
-  $('dictBtn').classList.toggle('active', App.dictMode);
-  if(App.dictMode){ Dict.open(); toast('Toca cualquier palabra del texto'); } else Dict.close();
+  $('dictModeTxt').textContent = App.dictMode ? 'Desactivar modo diccionario' : 'Activar modo diccionario';
+  $('dictModeBtn').classList.toggle('pri', App.dictMode);
+  if(App.dictMode){ Sheet.close(); toast('Toca cualquier palabra del texto'); }
 };
 $('dgo').onclick = () => Dict.lookup($('dq').value);
+$('dq').onkeydown = e => { if(e.key==='Enter') Dict.lookup($('dq').value); };
 let selT; document.addEventListener('selectionchange',()=>{ if(!App.dictMode) return; clearTimeout(selT); selT=setTimeout(()=>{
   const t=(window.getSelection()||'').toString().trim(); if(t && t.length<=30 && !/\s/.test(t) && document.activeElement!==$('dq') && $('text').contains(window.getSelection().anchorNode)) Dict.lookup(t); },500); });
-$('dq').onkeydown = e => { if(e.key==='Enter') Dict.lookup($('dq').value); };
+
 $('rate').addEventListener('input',()=>{ AU.playbackRate=+$('rate').value; App.bar(); });
 $('audBtn').onclick = () => $('audFile').click();
 $('audFile').onchange = async e => { await Aud.importFiles(e.target.files); e.target.value=''; };
-$('expBtn').onclick = () => { App.exportTxt(); Sheet.close(); };
-$('chap').onchange = e => { App.pause(); App.c=+e.target.value; App.p=0; App.mode='book'; App.introKey=null; Time.ms=0; App.render(); App.updateGenBtn(); };
-$('allv').onchange = () => Voice.load();
-$('voice').onchange = e => { localStorage.setItem('voice', Voice.voices[+e.target.value].voiceURI); if(Voice.playing) App.say(); };
-$('genBtn').onclick = () => App.genChapter();
-$('genBtnQuick').onclick = () => { Sheet.open('settingsSheet'); setTimeout(()=>App.genChapter(), 300); };
-
-// Progress bar seek
-$('progBar').onclick = e => {
-  if(!App.book) return;
-  const r = e.currentTarget.getBoundingClientRect();
-  const frac = (e.clientX - r.left) / r.width;
-  if(Aud.active() && AU.duration>0){ AU.currentTime = frac*AU.duration; }
-  else{ const ps = App.paras(); App.p = Math.floor(frac * ps.length); App.mark(); if(Voice.playing) App.say(); }
-};
+$('expBtn').onclick = () => { App.exportTxt(); };
+$('test').onclick = () => { Voice.speak('Hola. Así sonará la voz de respaldo del teléfono.', ()=>{}); };
 
 let rt; const restart = () => { clearTimeout(rt); rt=setTimeout(()=>{ if(Voice.playing) App.say(); },400); };
-$('rate').oninput  = e => { $('rateV').textContent = (+e.target.value).toFixed(1)+'×'; localStorage.setItem('rate',e.target.value); restart(); };
-$('pitch').oninput = e => { $('pitchV').textContent = (+e.target.value).toFixed(2).replace(/0$/,''); localStorage.setItem('pitch',e.target.value); restart(); };
-document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ $('pitch').value=b.dataset.p; $('pitch').oninput({target:$('pitch')}); document.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on', x===b)); toast('Timbre: '+b.textContent); });
+$('rate').oninput = e => { $('rateV').textContent = (+e.target.value).toFixed(1)+'×'; localStorage.setItem('rate',e.target.value); restart(); };
 $('sleep').onchange = e => { Voice.setSleep(+e.target.value); if(+e.target.value) toast('Se detendrá en '+e.target.value+' min'); };
-$('test').onclick = () => { Voice.speak('Hola. Así sonará tu audiolibro con esta voz y esta velocidad.', ()=>{}); };
+$('follow').onchange = e => localStorage.setItem('follow', e.target.checked?'1':'0');
+$('announce').onchange = e => localStorage.setItem('announce', e.target.checked?'1':'0');
 
 // Startup
 (async () => {
-  Theme.init();
-  Sheet.init();
+  Theme.init(); Sheet.init();
   try{
     $('follow').checked = localStorage.getItem('follow')!=='0';
-    $('follow').onchange=e=>localStorage.setItem('follow',e.target.checked?'1':'0');
     $('announce').checked = localStorage.getItem('announce')!=='0';
-    $('announce').onchange=e=>localStorage.setItem('announce',e.target.checked?'1':'0');
-    const r=localStorage.getItem('rate'), p=localStorage.getItem('pitch');
-    if(r){ $('rate').value=r; $('rateV').textContent=(+r).toFixed(1)+'×'; }
-    if(p){ $('pitch').value=p; $('pitchV').textContent=(+p).toFixed(2).replace(/0$/,''); }
-    document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on', +b.dataset.p === +$('pitch').value));
+    const r=localStorage.getItem('rate'); if(r){ $('rate').value=r; $('rateV').textContent=(+r).toFixed(1)+'×'; }
   }catch(e){}
   if(Voice.synth){ Voice.load(); Voice.synth.onvoiceschanged = () => Voice.load(); }
   await Store.init(); await App.refresh();
-  Srv.probe();
 })();
 </script>
 </body>
