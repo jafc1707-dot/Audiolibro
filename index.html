@@ -92,6 +92,8 @@
       <button id="next">⏭</button>
     </div>
     <div class="row"><button id="dictBtn">📖 Diccionario: tocar palabra</button></div>
+    <div class="row"><button id="audBtn">🎧 Cargar audios MP3 de este libro</button></div>
+    <input type="file" id="audFile" accept="audio/*,.mp3,.m4a,.wav,.ogg" multiple>
     <div class="row">
       <button id="sumCh">📝 Resumen del capítulo</button>
       <button id="sumBook">📚 Resumen del libro</button>
@@ -109,6 +111,7 @@
       <div class="row"><label>Dormir</label>
         <select id="sleep"><option value="0">Sin temporizador</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">60 min</option></select></div>
       <div class="row"><button id="test">🔊 Probar voz</button></div>
+      <div class="row"><button id="expBtn">⬇ Guardar el texto de este libro (.txt)</button></div>
       <div class="small" id="vwarn" style="display:none;background:#3a2f14;border:1px solid var(--ac);border-radius:10px;padding:8px 10px;margin-bottom:8px">⚠ Tu aparato no tiene ninguna voz <b>masculina y natural</b> en español. Las que ves son las básicas (suenan robóticas). Descarga una mejor siguiendo la guía de abajo; es gratis y toma unos minutos.</div>
       <details class="small" id="vguide"><summary>¿Cómo conseguir voces más naturales?</summary>
         <div class="mut small" style="line-height:1.5">
@@ -178,25 +181,31 @@ const toast = (m) => { const t=$('toast'); t.textContent=m; t.style.display='blo
 
 /* ---------- 1) BIBLIOTECA: IndexedDB con respaldo en memoria ---------- */
 const Store = (() => {
-  let db = null, mem = new Map(), persistent = false;
+  let db = null, mem = new Map(), memA = new Map(), persistent = false;
   const open = () => new Promise(res => {
     try {
-      const rq = indexedDB.open('audiolibro', 1);
-      rq.onupgradeneeded = () => rq.result.createObjectStore('books', {keyPath:'id'});
+      const rq = indexedDB.open('audiolibro', 2);
+      rq.onupgradeneeded = () => { const d=rq.result;
+        if(!d.objectStoreNames.contains('books')) d.createObjectStore('books', {keyPath:'id'});
+        if(!d.objectStoreNames.contains('audio')) d.createObjectStore('audio', {keyPath:'key'}); };
       rq.onsuccess = () => { db = rq.result; persistent = true; res(); };
       rq.onerror = () => res();
     } catch(e){ res(); }
   });
-  const tx = (mode, fn) => new Promise((res, rej) => {
-    const t = db.transaction('books', mode), s = t.objectStore('books'); const r = fn(s);
+  const tx = (store, mode, fn) => new Promise((res, rej) => {
+    const t = db.transaction(store, mode), s = t.objectStore(store); const r = fn(s);
     t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error);
   });
   return {
     init: open,
     get persistent(){ return persistent; },
-    async all(){ if(db){ try{ return await tx('readonly', s => s.getAll()); }catch(e){} } return [...mem.values()]; },
-    async put(b){ mem.set(b.id,b); if(db){ try{ await tx('readwrite', s => s.put(b)); }catch(e){} } },
-    async del(id){ mem.delete(id); if(db){ try{ await tx('readwrite', s => s.delete(id)); }catch(e){} } },
+    async all(){ if(db){ try{ return await tx('books','readonly', s => s.getAll()); }catch(e){} } return [...mem.values()]; },
+    async put(b){ mem.set(b.id,b); if(db){ try{ await tx('books','readwrite', s => s.put(b)); }catch(e){} } },
+    async del(id){ mem.delete(id); if(db){ try{ await tx('books','readwrite', s => s.delete(id)); }catch(e){} } await this.delAudio(id+':'); },
+    async putAudio(key, blob){ if(!db) memA.set(key, blob); else { try{ await tx('audio','readwrite', s => s.put({key, blob})); }catch(e){ memA.set(key, blob); } } },
+    async getAudio(key){ if(db){ try{ const r = await tx('audio','readonly', s => s.get(key)); if(r) return r.blob; }catch(e){} } return memA.get(key) || null; },
+    async audioKeys(prefix){ let ks=[]; if(db){ try{ ks = await tx('audio','readonly', s => s.getAllKeys()); }catch(e){} } return [...new Set([...ks, ...memA.keys()])].filter(k => k.startsWith(prefix)); },
+    async delAudio(prefix){ for(const k of await this.audioKeys(prefix)){ memA.delete(k); if(db){ try{ await tx('audio','readwrite', s => s.delete(k)); }catch(e){} } } },
   };
 })();
 
@@ -551,9 +560,63 @@ const Dict = {
   }
 };
 
+/* ---------- AUDIOS MP3 (voz natural generada aparte) ---------- */
+const AU = new Audio(); AU.preload = 'metadata';
+const Aud = {
+  keys: new Set(), url: null, loadedC: -1, _st: null, _stC: -1, _tot: 1,
+  async refresh(){ this.keys.clear(); this.loadedC=-1; if(!App.book) return;
+    const pre = App.book.id+':'; (await Store.audioKeys(pre)).forEach(k => this.keys.add(+k.slice(pre.length))); },
+  has(c){ return this.keys.has(c); },
+  active(){ return App.mode==='book' && !!App.book && this.has(App.c); },
+  async ensure(){ if(!this.active() || this.loadedC===App.c) return;
+    const blob = await Store.getAudio(App.book.id+':'+App.c); if(!blob) return;
+    if(this.url) URL.revokeObjectURL(this.url);
+    this.url = URL.createObjectURL(blob); AU.src = this.url; AU.playbackRate = +$('rate').value; this.loadedC = App.c; },
+  starts(){            // en qué fracción del audio empieza cada párrafo (proporcional al largo del texto)
+    if(this._stC===App.c && this._st) return this._st;
+    const ch = App.book.chapters[App.c]; let a = ch.title.length+2; const st = [];
+    ch.paras.forEach(p => { st.push(a); a += p.length+1; }); this._tot = a; this._st = st; this._stC = App.c; return st; },
+  idxAt(f){ const st = this.starts(), pos = f*this._tot; let i = 0; while(i+1 < st.length && st[i+1] <= pos) i++; return i; },
+  seekTo(i){ const st = this.starts(); if(isFinite(AU.duration) && AU.duration>0) AU.currentTime = Math.min(AU.duration-0.1, st[i]/this._tot*AU.duration); },
+  media(){
+    try{ const ch = App.book.chapters[App.c];
+      navigator.mediaSession.metadata = new MediaMetadata({title: ch.title.slice(0,80), artist: App.book.title, album: 'Mi Audiolibro'});
+      const h = (n,f) => { try{ navigator.mediaSession.setActionHandler(n,f); }catch(e){} };
+      h('play', () => App.play()); h('pause', () => App.pause());
+      h('seekbackward', () => { AU.currentTime = Math.max(0, AU.currentTime-15); });
+      h('seekforward', () => { AU.currentTime = Math.min(AU.duration||1e9, AU.currentTime+15); });
+      h('previoustrack', () => App.chapterStep(-1)); h('nexttrack', () => App.chapterStep(1));
+    }catch(e){}
+  },
+  async importFiles(files){
+    if(!App.book) return; const nat = (a,b) => a.name.localeCompare(b.name, undefined, {numeric:true});
+    const list = [...files].sort(nat); let n = 0, first = -1, last = -1, seq = App.c;
+    for(const f of list){
+      const m = f.name.match(/^\s*(\d{1,3})/); let c = m ? (+m[1]-1) : seq;
+      if(c < 0 || c >= App.book.chapters.length){ toast('“'+f.name+'” no corresponde a ningún capítulo'); continue; }
+      await Store.putAudio(App.book.id+':'+c, f); seq = c+1; n++; if(first<0||c<first) first=c; if(c>last) last=c;
+    }
+    await this.refresh(); App.fillChap(); App.render();
+    if(n) toast(n+' audio(s) cargado(s): capítulos '+(first+1)+(last>first?' a '+(last+1):''));
+  }
+};
+AU.addEventListener('timeupdate', () => {
+  if(!App.audPlaying || !Aud.active() || !(AU.duration>0)) return;
+  const i = Aud.idxAt(AU.currentTime/AU.duration); if(i !== App.p){ App.p = i; App.mark(); } App.bar();
+});
+AU.addEventListener('loadedmetadata', () => App.bar());
+AU.addEventListener('ended', async () => {
+  if(!Aud.active()) return;
+  if(App.c < App.book.chapters.length-1 && Aud.has(App.c+1)){
+    App.c++; App.p=0; Time.reset(); App.render(); await Aud.ensure(); try{ await AU.play(); }catch(e){ App.pause(); }
+  } else { App.pause(); toast('Fin de los audios cargados'); }
+});
+AU.addEventListener('pause', () => { if(App.audPlaying && !AU.ended && !Aud._busy){ Aud._busy=true; App.pause(); Aud._busy=false; } });
+AU.addEventListener('play', () => { if(!App.audPlaying && Aud.active()){ App.audPlaying=true; $('play').textContent='⏸ Pausar'; Time.start(); } });
+
 /* ---------- APP ---------- */
 const App = {
-  book:null, c:0, p:0, mode:'book', sum:[], sumLabel:'',
+  book:null, c:0, p:0, mode:'book', sum:[], sumLabel:'', audPlaying:false,
   async refresh(){
     const list = await Store.all(); const box = $('books'); box.innerHTML='';
     if(!list.length) box.innerHTML = '<div class="mut">Aún no hay libros. Carga uno arriba.</div>';
@@ -572,20 +635,37 @@ const App = {
     b.id = 'b'+Date.now()+Math.random().toString(36).slice(2,6); b.c=0; b.p=0; b.last=Date.now();
     await Store.put(b); await this.refresh(); toast('Agregado: '+b.title);
   },
-  open(b){
+  async open(b){
     this.book=b; this.c=b.c||0; this.p=b.p||0; this.mode='book'; this.introKey=null; Time.ms=0; Time.t0=null;
     $('lib').style.display='none'; $('reader').style.display='block'; $('back').style.display='';
     $('title').textContent = b.title;
-    $('chap').innerHTML = b.chapters.map((c,i)=>`<option value="${i}">${i+1}. ${c.title.replace(/</g,'&lt;')}</option>`).join('');
+    await Aud.refresh(); this.fillChap();
     this.render();
   },
-  close(){ this.pause(); this.book=null; $('reader').style.display='none'; $('lib').style.display='block'; $('back').style.display='none'; $('title').textContent='🎧 Mi Audiolibro'; this.refresh(); },
+  fillChap(){
+    $('chap').innerHTML = this.book.chapters.map((c,i)=>`<option value="${i}">${Aud.has(i)?'🎧 ':''}${i+1}. ${c.title.replace(/</g,'&lt;')}</option>`).join('');
+    $('chap').value = this.c;
+  },
+  chapterStep(d){ const n=this.c+d; if(n<0||n>=this.book.chapters.length) return; const was=this.audPlaying||Voice.playing;
+    this.pause(); this.c=n; this.p=0; this.introKey=null; Time.ms=0; this.mode='book'; this.render(); if(was) this.play(); },
+  exportTxt(){
+    const b=this.book, out=[];
+    b.chapters.forEach((ch,i)=>{ const t=ch.title.replace(/^(cap[ií]tulo|parte|secci[oó]n)\s*\d*\s*[.:\-–]?\s*/i,'').replace(/\s+/g,' ').trim().slice(0,45);
+      out.push('Capítulo '+(i+1)+'. '+t,''); (ch.paras[0]===ch.title?ch.paras.slice(1):ch.paras).forEach(p=>out.push(p,'')); });
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([out.join('\n')],{type:'text/plain;charset=utf-8'}));
+    a.download=(b.title.replace(/[^\w\- áéíóúñ]/g,'').trim().slice(0,40)||'libro')+'.txt'; document.body.appendChild(a); a.click(); a.remove();
+    toast('Texto del libro guardado (.txt)');
+  },
+  close(){ this.pause(); try{ AU.removeAttribute('src'); AU.load(); }catch(e){} Aud.loadedC=-1; this.book=null; $('reader').style.display='none'; $('lib').style.display='block'; $('back').style.display='none'; $('title').textContent='🎧 Mi Audiolibro'; this.refresh(); },
   bar(){
     if(!this.book) return; const ps=this.paras(), tot=Time.words(ps), rem=Time.words(ps.slice(this.p));
     const name = this.mode==='summary' ? this.sumLabel : this.book.chapters[this.c].title;
     $('est').innerHTML = '';
     const a=document.createElement('div'); a.textContent = (this.mode==='summary'?'📝 ':'📖 ')+name.slice(0,60);
-    const b=document.createElement('div'); b.className='mut'; b.textContent = 'Dura ~'+Time.fmt(Time.mins(tot))+' · faltan ~'+Time.fmt(Time.mins(rem));
+    const b=document.createElement('div'); b.className='mut';
+    if(Aud.active() && AU.duration>0 && Aud.loadedC===this.c){ const r=Math.max(0.5,+$('rate').value);
+      b.textContent = '🎧 Dura '+Time.fmt(AU.duration/60/r)+' · faltan '+Time.fmt((AU.duration-AU.currentTime)/60/r); }
+    else b.textContent = 'Dura ~'+Time.fmt(Time.mins(tot))+' · faltan ~'+Time.fmt(Time.mins(rem));
     $('est').append(a,b); $('clock').textContent='⏱ '+Time.clock();
   },
   intro(){
@@ -599,14 +679,14 @@ const App = {
   render(){
     const box = $('text'); box.innerHTML='';
     if(this.mode==='summary'){ const h=document.createElement('p'); h.className='mut'; h.textContent='📝 '+this.sumLabel+' (toca "Volver al libro" para regresar)'; box.appendChild(h); }
-    this.paras().forEach((t,i)=>{ const p=document.createElement('p'); p.textContent=t; p.onclick=(e)=>{ if(this.dictMode){ const w=Dict.wordAt(e.clientX,e.clientY); if(w) Dict.lookup(w); return; } this.p=i; this.mark(); if(Voice.playing) this.say(); }; box.appendChild(p); });
-    $('chap').value=this.c; this.mark(true); this.bar();
+    this.paras().forEach((t,i)=>{ const p=document.createElement('p'); p.textContent=t; p.onclick=(e)=>{ if(this.dictMode){ const w=Dict.wordAt(e.clientX,e.clientY); if(w) Dict.lookup(w); return; } this.p=i; this.mark(); if(Aud.active()) Aud.seekTo(i); else if(Voice.playing) this.say(); }; box.appendChild(p); });
+    $('chap').value=this.c; this.mark(true); this.bar(); Aud.ensure().then(()=>this.bar());
   },
   mark(scroll){
     const ps = [...$('text').querySelectorAll('p')].filter(p=>!p.classList.contains('mut'));
     const all = this.paras();
     ps.forEach((p,i)=>{ p.classList.toggle('on', i===this.p); if(i!==this.p && p.firstChild && p.firstChild.nodeType===1) p.textContent = all[i]; });
-    if(ps[this.p] && (scroll || !Voice.playing || $('follow').checked)) ps[this.p].scrollIntoView({block:'center',behavior:scroll?'auto':'smooth'});
+    if(ps[this.p] && (scroll || !(Voice.playing||this.audPlaying) || $('follow').checked)) ps[this.p].scrollIntoView({block:'center',behavior:scroll?'auto':'smooth'});
     if(this.mode==='book'){ this.book.c=this.c; this.book.p=this.p; this.book.last=Date.now(); clearTimeout(this.sv); this.sv=setTimeout(()=>Store.put(this.book),700); }
   },
   say(){
@@ -630,14 +710,18 @@ const App = {
   },
   finish(){ this.pause(); if(this.mode==='summary') toast('Fin del resumen'); else toast('Fin del libro'); },
   async play(){
+    if(Aud.active()){
+      await Aud.ensure(); $('play').textContent='⏸ Pausar'; this.audPlaying=true; Time.start(); Aud.media();
+      try{ await AU.play(); }catch(e){ this.pause(); toast('No pude reproducir este audio'); } return;
+    }
     if(!Voice.synth){ return toast('Este navegador no tiene voz integrada'); }
     $('play').textContent='⏸ Pausar'; try{ this.wl = await navigator.wakeLock.request('screen'); }catch(e){}
     Time.start(); this.start();
   },
   start(){ const it=this.intro(); if(it){ Voice.speak(it, ()=>this.say()); } else this.say(); },
-  pause(){ Time.stop(); Voice.stop(); $('play').textContent='▶ Leer'; try{ this.wl && this.wl.release(); }catch(e){} },
-  toggle(){ Voice.playing ? this.pause() : this.play(); },
-  step(d){ const n=this.p+d; if(n<0||n>=this.paras().length) return; this.p=n; this.mark(); if(Voice.playing) this.say(); },
+  pause(){ this.audPlaying=false; try{ AU.pause(); }catch(e){} Time.stop(); Voice.stop(); $('play').textContent='▶ Leer'; try{ this.wl && this.wl.release(); }catch(e){} },
+  toggle(){ (Voice.playing||this.audPlaying) ? this.pause() : this.play(); },
+  step(d){ const n=this.p+d; if(n<0||n>=this.paras().length) return; this.p=n; this.mark(); if(Aud.active()) Aud.seekTo(n); else if(Voice.playing) this.say(); },
   startSummary(label, paras){
     this.pause(); this.mode='summary'; this.sum=paras; this.sumLabel=label; this.p=0; this.render();
     $('sumCh').textContent='↩ Volver al libro'; $('sumBook').style.display='none'; this.play();
@@ -683,7 +767,10 @@ let selT; document.addEventListener('selectionchange',()=>{ if(!App.dictMode) re
   const t=(window.getSelection()||'').toString().trim(); if(t && t.length<=30 && !/\s/.test(t) && document.activeElement!==$('dq') && $('text').contains(window.getSelection().anchorNode)) Dict.lookup(t); },500); });
 $('dq').onkeydown = e => { if(e.key==='Enter') Dict.lookup($('dq').value); };
 $('dx').onclick = () => Dict.close();
-$('rate').addEventListener('input',()=>App.bar());
+$('rate').addEventListener('input',()=>{ AU.playbackRate=+$('rate').value; App.bar(); });
+$('audBtn').onclick = () => $('audFile').click();
+$('audFile').onchange = async e => { await Aud.importFiles(e.target.files); e.target.value=''; };
+$('expBtn').onclick = () => App.exportTxt();
 $('chap').onchange = e => { App.pause(); App.c=+e.target.value; App.p=0; App.mode='book'; App.introKey=null; Time.ms=0; App.render(); };
 $('allv').onchange = () => Voice.load();
 $('voice').onchange = e => { localStorage.setItem('voice', Voice.voices[+e.target.value].voiceURI); if(Voice.playing) App.say(); };
