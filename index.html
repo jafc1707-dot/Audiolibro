@@ -8,15 +8,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Mi Audiolibro</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#14161a">
-<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Audiolibro"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png">
-<script>try{ if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')) navigator.serviceWorker.register('sw.js'); }catch(e){}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
@@ -143,6 +134,17 @@ textarea{width:100%;min-height:84px;background:var(--surface);color:var(--tx);bo
   border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:9px 11px;font:600 12.5px/1.4 var(--sans);margin-top:10px}
 .nosource.on{display:flex}
 .nosource svg{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.nosource span{flex:1}
+.nosource .genbtn{flex:0 0 auto;background:var(--ac);color:var(--ac-ink);border:0;border-radius:8px;padding:6px 11px;font:700 12px/1 var(--sans);white-space:nowrap}
+.nosource .genbtn:disabled{opacity:.6}
+.nosource.busy .genprog{display:block}
+.genprog{display:none;height:3px;border-radius:2px;background:color-mix(in srgb, var(--ac) 25%, transparent);overflow:hidden;position:absolute;left:11px;right:11px;bottom:-1px}
+.genprog i{display:block;height:100%;width:30%;background:var(--ac);animation:genmove 1.1s ease-in-out infinite}
+@keyframes genmove{0%{margin-left:-30%}100%{margin-left:100%}}
+.srvbadge{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--sans);padding:4px 9px;border-radius:7px;background:var(--surface-2);color:var(--tx-mut);margin-bottom:10px}
+.srvbadge .dot{width:7px;height:7px;border-radius:50%;background:#c0392b}
+.srvbadge.on{color:#1f7a4d;background:color-mix(in srgb, #1f7a4d 14%, var(--surface-2))}
+.srvbadge.on .dot{background:#1f7a4d}
 
 #text{padding:2px 0 16px}
 #text p{margin:0 0 15px;padding:9px 12px;border-radius:12px;font:400 18.5px/1.72 var(--serif);transition:.2s;cursor:pointer}
@@ -282,7 +284,12 @@ details.adv summary svg{width:13px;height:13px;stroke:currentColor;fill:none;str
     <div class="top"><div class="nm" id="estTitle">Capítulo</div><div class="tm" id="clock">00:00</div></div>
     <div class="sub" id="estSub">—</div>
     <div id="sbar" style="margin-top:8px"><div id="sfill"></div></div>
-    <div class="nosource" id="nosource"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Este capítulo no tiene audio MP3 todavía — toca <b>Audio</b> para cargarlo.</span></div>
+    <div class="nosource" id="nosource" style="position:relative">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="nosourceTxt">Este capítulo no tiene voz todavía.</span>
+      <button class="genbtn" id="genBtn">Generar voz</button>
+      <div class="genprog"><i></i></div>
+    </div>
   </div>
 
   <div id="text"></div>
@@ -335,12 +342,16 @@ details.adv summary svg{width:13px;height:13px;stroke:currentColor;fill:none;str
       </select>
     </div>
     <div class="fg">
-      <button class="actbtn" id="expBtn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar texto del libro (.txt)</button>
-      <p class="mut" style="font-size:12px;color:var(--tx-mut);margin:8px 2px 0;line-height:1.5">Pásaselo al computador para generar el audio allá.</p>
+      <label class="fh">Voz natural</label>
+      <div class="srvbadge" id="srvBadge"><span class="dot"></span><span id="srvBadgeTxt">No configurado todavía</span></div>
+      <input class="full" id="srvUrl" type="url" placeholder="Pega aquí la dirección (https://....workers.dev)" autocapitalize="none" autocorrect="off" style="margin-bottom:8px">
+      <select class="full" id="srvVoice" style="margin-bottom:6px;display:none"></select>
+      <p class="mut" id="srvInfo" style="font-size:12px;color:var(--tx-mut);margin:0 0 4px;line-height:1.5">Se configura una sola vez. Después, cada capítulo se genera solo, sin computador.</p>
     </div>
     <details class="adv">
-      <summary><span class="chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>Opción avanzada: voz del teléfono</summary>
-      <div class="vwarn" id="vwarn">Tu iPhone no trae ninguna voz masculina natural en español — solo las que ves abajo (suenan robóticas). Para voz natural, usa el MP3 generado en el computador.</div>
+      <summary><span class="chev"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>Otras opciones</summary>
+      <button class="actbtn" id="expBtn" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar texto del libro (.txt)</button>
+      <div class="vwarn" id="vwarn">Tu iPhone no trae ninguna voz masculina natural en español — solo las que ves abajo (suenan robóticas).</div>
       <select class="full" id="voice" style="margin-bottom:8px"></select>
       <p class="mut" id="vinfo" style="font-size:12px;color:var(--tx-mut);margin:0 0 10px"></p>
       <button class="actbtn" id="test"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>Probar esta voz</button>
@@ -437,6 +448,54 @@ const Sheet = {
   open(id){ $('sheetBd').classList.add('on'); $(id).classList.add('on'); },
   close(){ $('sheetBd').classList.remove('on'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on')); },
   init(){ $('sheetBd').onclick=()=>this.close(); document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>this.close()); }
+};
+
+/* ---------- SRV: puente de voz en la nube (Cloudflare Worker) ---------- */
+const Srv = {
+  base: null, voices: [], checking: false,
+  init(){
+    const saved = localStorage.getItem('srvUrl') || 'https://mi-audiolibro-voz.jafc1707.workers.dev';
+    if(saved){ $('srvUrl').value = saved; this.setBase(saved, true); }
+  },
+  async setBase(url, quiet){
+    url = (url||'').trim().replace(/\/+$/,'');
+    if(!url){ this.base = null; this.offUI(); return; }
+    if(!quiet) this.checking = true;
+    try{
+      const c = new AbortController(); const t = setTimeout(()=>c.abort(), 6000);
+      const r = await fetch(url+'/api/voces', {signal:c.signal}); clearTimeout(t);
+      if(!r.ok) throw new Error();
+      const j = await r.json();
+      if(!j || !j.voces || !j.voces.length) throw new Error();
+      this.base = url; this.voices = j.voces; localStorage.setItem('srvUrl', url);
+      this.onUI();
+    }catch(e){
+      this.base = null; this.offUI();
+      if(!quiet) toast('No pude conectarme a esa dirección. Revisa que esté bien copiada.', 4000);
+    }
+    this.checking = false;
+  },
+  onUI(){
+    const sel = $('srvVoice');
+    sel.innerHTML = this.voices.map((v,i)=>`<option value="${i}">${v.nombre} (${v.pais})</option>`).join('');
+    const savedV = localStorage.getItem('srvVoice');
+    const i = this.voices.findIndex(v=>v.id===savedV);
+    sel.value = i>=0 ? i : 0;
+    sel.style.display='block';
+    $('srvBadge').classList.add('on'); $('srvBadgeTxt').textContent = 'Conectado — voz natural lista';
+    sel.onchange = () => localStorage.setItem('srvVoice', this.voices[+sel.value].id);
+    App.book && App.bar();
+  },
+  offUI(){
+    $('srvVoice').style.display='none';
+    $('srvBadge').classList.remove('on'); $('srvBadgeTxt').textContent = 'No configurado todavía';
+  },
+  voz(){ const sel=$('srvVoice'); return this.voices[+sel.value] ? this.voices[+sel.value].id : (this.voices[0]&&this.voices[0].id); },
+  async generate(texto, voz){
+    const r = await fetch(this.base+'/api/generar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({texto, voz})});
+    if(!r.ok){ let msg='Error del servicio de voz'; try{ msg = (await r.json()).error || msg; }catch(e){} throw new Error(msg); }
+    return await r.blob();
+  }
 };
 
 /* ---------- STORE ---------- */
@@ -924,7 +983,29 @@ const App = {
     $('estSub').textContent = sub;
     $('sfill').style.width = Math.max(0, Math.min(100, prog))+'%';
     $('clock').textContent = Time.clock();
-    $('nosource').classList.toggle('on', this.mode==='book' && !hasAudio);
+    const noAudio = this.mode==='book' && !hasAudio;
+    $('nosource').classList.toggle('on', noAudio);
+    if(noAudio){
+      $('genBtn').style.display = Srv.base ? 'inline-flex' : 'none';
+      $('nosourceTxt').textContent = Srv.base ? 'Este capítulo no tiene voz todavía.' : 'Este capítulo no tiene voz · configura la voz natural en Ajustes.';
+    }
+  },
+  async genChapter(){
+    if(!Srv.base || !this.book || this.genBusy) return;
+    this.genBusy = true;
+    $('genBtn').disabled = true; $('genBtn').textContent = 'Generando…'; $('nosource').classList.add('busy');
+    try{
+      const ch = this.book.chapters[this.c];
+      const texto = (ch.paras[0]===ch.title ? ch.paras.slice(1) : ch.paras).join('\n');
+      const blob = await Srv.generate(texto, Srv.voz());
+      await Store.putAudio(this.book.id+':'+this.c, blob);
+      await Aud.refresh(); this.fillChap(); this.render();
+      toast('Voz generada para este capítulo');
+    }catch(e){
+      toast('No se pudo generar: '+e.message, 4500);
+    }
+    this.genBusy = false;
+    $('genBtn').disabled = false; $('genBtn').textContent = 'Generar voz'; $('nosource').classList.remove('busy');
   },
   intro(){
     if(this.mode!=='book' || this.p!==0 || !$('announce').checked) return null;
@@ -1044,6 +1125,9 @@ $('audBtn').onclick = () => $('audFile').click();
 $('audFile').onchange = async e => { await Aud.importFiles(e.target.files); e.target.value=''; };
 $('expBtn').onclick = () => { App.exportTxt(); };
 $('test').onclick = () => { Voice.speak('Hola. Así sonará la voz de respaldo del teléfono.', ()=>{}); };
+$('genBtn').onclick = () => App.genChapter();
+let srvT; $('srvUrl').addEventListener('input', e => { clearTimeout(srvT); srvT=setTimeout(()=>Srv.setBase(e.target.value), 700); });
+Srv.init();
 
 let rt; const restart = () => { clearTimeout(rt); rt=setTimeout(()=>{ if(Voice.playing) App.say(); },400); };
 $('rate').oninput = e => { $('rateV').textContent = (+e.target.value).toFixed(1)+'×'; localStorage.setItem('rate',e.target.value); restart(); };
